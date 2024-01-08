@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.js.secondhandauction.core.item.repository.ItemRepository">
+    <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item" useGeneratedKeys="true"
+            keyProperty="itemNo" keyColumn="item_no">
+        insert into Item
+            (item, reg_date, upt_date, reg_price, state, reg_id, bet_time)
+        values (#{item}, NOW(), NOW(), #{regPrice}, #{state}, #{regId}, #{betTime})
+    </insert>
+
+    <select id="findByItemNo" resultType="com.js.secondhandauction.core.item.domain.Item">
+    <![CDATA[
+        select item_no,
+               item,
+               reg_date,
+               upt_date,
+               reg_price,
+               state,
+               reg_id,
+               bet_time
+        from Item
+        where item_no = #{itemNo}
+        ]]>
+    </select>
+
+    <update id="updateForUnsold" parameterType="com.js.secondhandauction.core.item.domain.Item">
+    <![CDATA[
+        update
+            Item
+        set item      = #{item}
+          , upt_date  = NOW()
+          , reg_price = #{regPrice}
+          , state     = #{state}
+          , bet_time  = #{betTime}
+        where item_no = #{itemNo}
+        ]]>
+    </update>
+
+    <update id="updateForOnsale" parameterType="com.js.secondhandauction.core.item.domain.Item">
+    <![CDATA[
+        update
+            Item
+        set item      = #{item}
+          , upt_date  = NOW()
+          , reg_price = #{regPrice}
+        where item_no = #{itemNo}
+        ]]>
+    </update>
+
+    <select id="getState">
+     <![CDATA[
+        select state
+        from Item
+        where item_no = #{itemNo}
+        ]]>
+    </select>
+
+    <update id="updateState">
+    <![CDATA[
+        update
+            Item
+        set state    = #{state}
+          , upt_date = NOW()
+        where item_no = #{itemNo}
+        ]]>
+    </update>
+
+    <select id="getStateCheckItems" resultType="com.js.secondhandauction.core.item.dto.ItemExpirationCheck">
+    <![CDATA[
+        select i.item_no,
+               MAX(a.reg_date) last_tick
+        from Item i
+                 LEFT JOIN Auction a ON i.item_no = a.item_no
+        where i.state = 'ONSALE'
+          and TIMESTAMPADD(day, #{addDay}, i.upt_date) < NOW()
+        GROUP BY i.item_no
+        ]]>
+    </select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.js.secondhandauction.core.user.repository.UserRepository">
+    <insert id="create" parameterType="com.js.secondhandauction.core.user.domain.User" useGeneratedKeys="true"
+            keyProperty="id">
+    <![CDATA[
+        insert into Users
+            (id, name, password, total_balance, reg_date, upt_date)
+        values (#{id}, #{name}, #{password}, #{totalBalance}, NOW(), NOW())
+        ]]>
+    </insert>
+
+    <select id="findById">
+        select id,
+               name,
+               password,
+               total_balance,
+               reg_date,
+               upt_date
+        from Users
+        where id = #{id}
+    </select>
+
+    <update id="updateTotalBalance">
+    <![CDATA[
+        update
+            Users
+        set total_balance = total_balance + #{totalBalance}
+          , upt_date      = NOW()
+        where id = #{id}
+        ]]>
+    </update>
+</mapper>
