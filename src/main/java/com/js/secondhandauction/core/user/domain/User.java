@@ -1,11 +1,8 @@
 package com.js.secondhandauction.core.user.domain;
 
-import com.js.secondhandauction.core.auction.dto.AuctionResponse;
 import com.js.secondhandauction.core.user.dto.UserCreateResponse;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
