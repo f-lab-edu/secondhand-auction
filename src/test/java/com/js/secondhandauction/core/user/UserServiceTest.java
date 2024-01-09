@@ -2,6 +2,8 @@ package com.js.secondhandauction.core.user;
 
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.user.domain.User;
+import com.js.secondhandauction.core.user.dto.UserCreateRequest;
+import com.js.secondhandauction.core.user.dto.UserCreateResponse;
 import com.js.secondhandauction.core.user.exception.CannotTotalBalanceMinusException;
 import com.js.secondhandauction.core.user.exception.NotFoundUserException;
 import com.js.secondhandauction.core.user.repository.UserRepository;
@@ -36,20 +38,25 @@ public class UserServiceTest {
 
     private User user;
 
+    private UserCreateRequest userCreateRequest;
+
     @BeforeEach
     void setup() {
         user = User.builder()
                 .name("Test User")
                 .build();
+
+        userCreateRequest = new UserCreateRequest("testID", "Test User", "pw");
+
     }
 
 
     @Test
     @DisplayName("유저를 생성한다")
     void testCreateUser() {
-        when(userRepository.create(any(User.class))).thenReturn(anyString());
+        //when(userRepository.create(any(User.class))).thenReturn(anyString());
 
-        User createdUser = userService.createUser(user);
+        UserCreateResponse createdUser = userService.createUser(userCreateRequest);
 
         assertNotNull(createdUser);
         Assertions.assertThat(10000000).isEqualTo(user.getTotalBalance());
