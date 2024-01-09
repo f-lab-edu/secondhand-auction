@@ -1,10 +1,12 @@
 package com.js.secondhandauction.core.item.controller;
 
+import com.js.secondhandauction.common.response.ApiResponse;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.dto.ItemRequest;
 import com.js.secondhandauction.core.item.dto.ItemResponse;
 import com.js.secondhandauction.core.item.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +23,8 @@ public class ItemController {
      * 상품 등록
      */
     @PostMapping
-    public ResponseEntity<ItemResponse> createItem(@RequestBody ItemRequest itemRequest) {
-        return ResponseEntity.ok(itemService.createItem(userId, itemRequest));
+    public ResponseEntity<ApiResponse<ItemResponse>> createItem(@RequestBody ItemRequest itemRequest) {
+        return new ResponseEntity<>(ApiResponse.success(itemService.createItem(userId, itemRequest)), HttpStatus.CREATED);
     }
 
     /**
@@ -30,7 +32,7 @@ public class ItemController {
      */
     @GetMapping("/{itemNo}")
     public ResponseEntity<Item> getItem(@PathVariable long itemNo) {
-        return ResponseEntity.ok(itemService.getItem(itemNo));
+        return new ResponseEntity<>(itemService.getItem(itemNo), HttpStatus.OK);
     }
 
     /**
@@ -38,7 +40,7 @@ public class ItemController {
      */
     @PutMapping("/{itemNo}")
     public ResponseEntity<ItemResponse> updateItem(@PathVariable long itemNo, @RequestBody ItemRequest itemRequest) {
-        return ResponseEntity.ok(itemService.updateItem(itemNo, userId, itemRequest));
+        return new ResponseEntity<>(itemService.updateItem(itemNo, userId, itemRequest), HttpStatus.OK);
     }
 
 }
