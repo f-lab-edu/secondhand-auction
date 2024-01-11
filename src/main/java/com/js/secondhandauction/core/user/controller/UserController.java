@@ -1,6 +1,8 @@
 package com.js.secondhandauction.core.user.controller;
 
 import com.js.secondhandauction.core.user.domain.User;
+import com.js.secondhandauction.core.user.dto.UserCreateRequest;
+import com.js.secondhandauction.core.user.dto.UserCreateResponse;
 import com.js.secondhandauction.core.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,8 @@ public class UserController {
      * 회원가입
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<UserCreateResponse> createUser(@RequestBody UserCreateRequest userCreateRequest) {
+        return ResponseEntity.ok(userService.createUser(userCreateRequest));
     }
 
     /**

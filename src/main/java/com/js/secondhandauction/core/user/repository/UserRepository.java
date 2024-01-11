@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Mapper
 public interface UserRepository {
-    String create(User user);
+    void create(User user);
 
     Optional<User> findById(String id);
 

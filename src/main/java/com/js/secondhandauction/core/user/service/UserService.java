@@ -1,16 +1,18 @@
 package com.js.secondhandauction.core.user.service;
 
+import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.user.domain.User;
+import com.js.secondhandauction.core.user.dto.UserCreateRequest;
+import com.js.secondhandauction.core.user.dto.UserCreateResponse;
 import com.js.secondhandauction.core.user.exception.CannotTotalBalanceMinusException;
 import com.js.secondhandauction.core.user.exception.NotFoundUserException;
+import com.js.secondhandauction.core.user.exception.UserException;
 import com.js.secondhandauction.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,20 +26,26 @@ public class UserService {
     /**
      * 회원가입
      */
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public UserCreateResponse createUser(UserCreateRequest userCreateRequest) {
+        User user = User.builder()
+                .id(userCreateRequest.id())
+                .name(userCreateRequest.name())
+                .password(passwordEncoder.encode(userCreateRequest.password()))
+                .build();
 
-        userRepository.create(user);
-        //user.setId(id);
-        return user;
+        try {
+            userRepository.create(user);
+        } catch (DataAccessException e) {
+            throw new UserException(ErrorCode.ALREADY_EXIST_USER);
+        }
+
+        return user.toResponse();
     }
 
     /**
      * 회원 조회
      */
     public User getUser(String id) {
-        log.debug("test pw = " + passwordEncoder.encode("test"));
-
         return userRepository.findById(id).orElseThrow(NotFoundUserException::new);
     }
 
