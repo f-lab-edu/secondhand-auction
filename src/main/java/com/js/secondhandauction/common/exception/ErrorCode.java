@@ -7,6 +7,7 @@ public enum ErrorCode {
 
 
     //USER
+    ALREADY_EXIST_USER("이미 존재하는 유저입니다."),
     NOT_FOUND_USER("존재하지 않는 유저입니다."),
     NOT_OVER_TOTALBALANCE("가진 금액보다 더 큰돈을 베팅할 수 없습니다."),
     CANNOT_TOTALBALANCE_MINUS("가진 금액이 마이너스가 될 수 없습니다."),
