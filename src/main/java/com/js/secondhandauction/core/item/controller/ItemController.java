@@ -31,8 +31,8 @@ public class ItemController {
      * 상품 조회
      */
     @GetMapping("/{itemNo}")
-    public ResponseEntity<ApiResponse<Item>> getItem(@PathVariable long itemNo) {
-        return new ResponseEntity<>(ApiResponse.success(itemService.getItem(itemNo)), HttpStatus.OK);
+    public ResponseEntity<Item> getItem(@PathVariable long itemNo) {
+        return new ResponseEntity<>(itemService.getItem(itemNo), HttpStatus.OK);
     }
 
     /**

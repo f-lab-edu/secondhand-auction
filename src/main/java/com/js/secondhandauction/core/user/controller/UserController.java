@@ -22,7 +22,7 @@ public class UserController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<UserCreateResponse>> createUser(@RequestBody UserCreateRequest userCreateRequest) {
-        return new ResponseEntity<>(ApiResponse.success(userService.createUser(userCreateRequest)), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(userService.createUser(userCreateRequest)), HttpStatus.CREATED);
     }
 
     /**
