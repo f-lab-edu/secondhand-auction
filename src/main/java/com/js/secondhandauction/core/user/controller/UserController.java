@@ -1,9 +1,9 @@
 package com.js.secondhandauction.core.user.controller;
 
 import com.js.secondhandauction.common.response.ApiResponse;
-import com.js.secondhandauction.core.user.domain.User;
 import com.js.secondhandauction.core.user.dto.UserCreateRequest;
 import com.js.secondhandauction.core.user.dto.UserCreateResponse;
+import com.js.secondhandauction.core.user.dto.UserGetResponse;
 import com.js.secondhandauction.core.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,9 +28,9 @@ public class UserController {
     /**
      * 회원 조회
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUser(@PathVariable String id) {
-        return new ResponseEntity<>(ApiResponse.success(userService.getUser(id)), HttpStatus.OK);
+    @GetMapping("/{username}")
+    public ResponseEntity<ApiResponse<UserGetResponse>> getUser(@PathVariable String username) {
+        return new ResponseEntity<>(ApiResponse.success(userService.getUser(username)), HttpStatus.OK);
     }
 
 

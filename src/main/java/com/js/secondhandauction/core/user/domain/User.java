@@ -11,37 +11,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
+
+@Builder
 @Getter
 public class User implements UserDetails {
-    private String id;
-    private String name;
+    private long id;
+    private String username;
     private String password;
+    private String nickname;
     private int totalBalance = 0;
     private LocalDateTime regDate;
     private LocalDateTime uptDate;
-
-    @Builder
-    public User(String id,
-                String name,
-                String password,
-                int totalBalance,
-                LocalDateTime regDate,
-                LocalDateTime uptDate
-    ) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-        this.totalBalance = totalBalance;
-        this.regDate = regDate;
-        this.uptDate = uptDate;
-    }
-
-    public UserCreateResponse toResponse() {
-        return UserCreateResponse.builder()
-                .id(id)
-                .name(name)
-                .build();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,11 +32,6 @@ public class User implements UserDetails {
         authorities.add(simpleGrantedAuthority);
 
         return authorities;
-    }
-
-    @Override
-    public String getUsername() {
-        return id;
     }
 
     @Override

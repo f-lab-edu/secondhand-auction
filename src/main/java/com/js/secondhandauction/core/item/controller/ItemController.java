@@ -23,8 +23,8 @@ public class ItemController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ItemResponse>> createItem(@AuthenticationPrincipal User user, @RequestBody ItemRequest itemRequest) {
-        final String userId = user.getUsername();
-        return new ResponseEntity<>(ApiResponse.success(itemService.createItem(userId, itemRequest)), HttpStatus.CREATED);
+        final long id = user.getId();
+        return new ResponseEntity<>(ApiResponse.success(itemService.createItem(id, itemRequest)), HttpStatus.CREATED);
     }
 
     /**
@@ -40,8 +40,8 @@ public class ItemController {
      */
     @PutMapping("/{itemNo}")
     public ResponseEntity<ApiResponse<ItemResponse>> updateItem(@AuthenticationPrincipal User user, @PathVariable long itemNo, @RequestBody ItemRequest itemRequest) {
-        final String userId = user.getUsername();
-        return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, userId, itemRequest)), HttpStatus.OK);
+        final long id = user.getId();
+        return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, id, itemRequest)), HttpStatus.OK);
     }
 
 }

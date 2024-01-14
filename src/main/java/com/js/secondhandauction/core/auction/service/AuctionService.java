@@ -43,11 +43,11 @@ public class AuctionService {
      * 경매 등록
      */
     @Transactional
-    public AuctionResponse createAuction(String userId, AuctionRequest auctionRequest) {
+    public AuctionResponse createAuction(User user, AuctionRequest auctionRequest) {
         Auction auction = auctionRequest.toEntity();
-        auction.setRegId(userId);
+        auction.setRegId(user.getId());
 
-        validateUser(auction);
+        validateUser(user, auction);
 
         Item item = validateItem(auction);
 
@@ -66,13 +66,13 @@ public class AuctionService {
             isImmediatePurchase = isImmediatelyPurchasableByRegPrice(item.getRegPrice(), auction.getBid());
         }
 
-        updateUserBalanceAndCreateAuction(auction, lastTick);
+        updateUserBalanceAndCreateAuction(user, auction, lastTick);
 
         if (isFinalBid(countTick, item.getBetTime()) || isImmediatePurchase) {
             finishAuction(auction, item);
         }
 
-        return auction.toResponse();
+        return AuctionResponse.of(auction);
     }
 
     /**
@@ -82,9 +82,7 @@ public class AuctionService {
         return auctionRepository.findByItemNo(itemNo);
     }
 
-    private void validateUser(Auction auction) {
-        User user = userService.getUser(auction.getRegId());
-
+    private void validateUser(User user, Auction auction) {
         if (user.getTotalBalance() < auction.getBid()) {
             throw new NotOverTotalBalanceException();
         }
@@ -138,11 +136,11 @@ public class AuctionService {
     }
 
 
-    private void updateUserBalanceAndCreateAuction(Auction auction, Auction lastTick) {
-        userService.updateUserTotalBalance(auction.getRegId(), auction.getBid() * -1);
+    private void updateUserBalanceAndCreateAuction(User user, Auction auction, Auction lastTick) {
+        userService.updateUserTotalBalanceById(auction.getRegId(), auction.getBid() * -1);
 
         if (lastTick != null) {
-            userService.updateUserTotalBalance(lastTick.getRegId(), lastTick.getBid());
+            userService.updateUserTotalBalanceById(lastTick.getRegId(), lastTick.getBid());
         }
 
         auctionRepository.create(auction);
@@ -153,7 +151,7 @@ public class AuctionService {
     }
 
     private void finishAuction(Auction auction, Item item) {
-        userService.updateUserTotalBalance(item.getRegId(), auction.getBid());
+        userService.updateUserTotalBalanceById(item.getRegId(), auction.getBid());
 
         itemService.updateItemState(item.getItemNo(), State.SOLDOUT);
 

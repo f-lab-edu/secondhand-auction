@@ -29,15 +29,16 @@ public class ItemService {
     /**
      * 상품등록
      */
-    public ItemResponse createItem(String userId, ItemRequest itemRequest) {
+    public ItemResponse createItem(long id, ItemRequest itemRequest) {
         Item item = itemRequest.toEntity();
 
-        item.setRegId(userId);
-        item.setState(ONSALE);
+        item.setRegId(id);
+        item.setState(State.ONSALE);
         item.setBetTime((int) (Math.random() * 16) + 5);
 
         itemRepository.create(item);
-        return item.toResponse();
+
+        return ItemResponse.of(item);
     }
 
     /**
@@ -50,10 +51,10 @@ public class ItemService {
     /**
      * 상품수정
      */
-    public ItemResponse updateItem(long itemNo, String userId, ItemRequest itemRequest) {
+    public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);
-        item.setRegId(userId);
+        item.setRegId(id);
 
         State itemState = getItemState(itemNo);
 
@@ -75,7 +76,7 @@ public class ItemService {
                 throw new ItemException(ErrorCode.NOT_FOUND_ITEM);
         }
 
-        return item.toResponse();
+        return ItemResponse.of(item);
     }
 
     /**

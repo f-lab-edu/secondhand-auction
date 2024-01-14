@@ -9,8 +9,9 @@ import java.util.Optional;
 public interface UserRepository {
     void create(User user);
 
-    Optional<User> findById(String id);
+    Optional<User> findByUsername(String username);
 
-    void updateTotalBalance(String id, int totalBalance);
+    Optional<User> findById(long id);
 
+    void updateTotalBalance(String username, int totalBalance);
 }
