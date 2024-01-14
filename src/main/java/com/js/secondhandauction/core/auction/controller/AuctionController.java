@@ -5,11 +5,11 @@ import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
 import com.js.secondhandauction.core.auction.service.AuctionService;
+import com.js.secondhandauction.core.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +23,7 @@ public class AuctionController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AuctionResponse>> createAuction(@AuthenticationPrincipal User user, @RequestBody AuctionRequest auctionRequest) {
-        final String userId = user.getUsername();
-        return new ResponseEntity<>(ApiResponse.success(auctionService.createAuction(userId, auctionRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success(auctionService.createAuction(user, auctionRequest)), HttpStatus.CREATED);
     }
 
     @GetMapping("/{itemNo}")
