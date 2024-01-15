@@ -12,7 +12,7 @@ public class UserGetResponse {
     private long id;
     private String username;
     private String nickname;
-    private int totalBalance = 0;
+    private int totalBalance;
     private LocalDateTime regDate;
     private LocalDateTime uptDate;
 

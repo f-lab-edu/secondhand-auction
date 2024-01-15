@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Auction {
     private long auctionNo;
     private long itemNo;
-    private int bid = 0;
+    private int bid;
     private long regId;
     private LocalDateTime regDate;
 }
