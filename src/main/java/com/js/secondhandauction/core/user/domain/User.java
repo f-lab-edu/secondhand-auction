@@ -19,7 +19,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String nickname;
-    private int totalBalance = 0;
+    private int totalBalance;
     private LocalDateTime regDate;
     private LocalDateTime uptDate;
 

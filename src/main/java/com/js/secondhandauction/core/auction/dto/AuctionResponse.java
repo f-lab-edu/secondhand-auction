@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class AuctionResponse {
     private long auctionNo;
     private long itemNo;
-    private int bid = 0;
+    private int bid;
 
     public static AuctionResponse of(Auction auction) {
         return AuctionResponse.builder()
