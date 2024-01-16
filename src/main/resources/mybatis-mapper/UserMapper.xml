@@ -14,6 +14,7 @@
     </insert>
 
     <select id="findByUsername">
+    <![CDATA[
         select id,
                username,
                password,
@@ -22,10 +23,12 @@
                reg_date,
                upt_date
         from Users
-        where username = #{username}
+        where username = #{username
+        ]]>
     </select>
 
     <select id="findById">
+    <![CDATA[
         select id,
                username,
                password,
@@ -35,6 +38,7 @@
                upt_date
         from Users
         where id = #{id}
+        ]]>
     </select>
 
     <update id="updateTotalBalance">
