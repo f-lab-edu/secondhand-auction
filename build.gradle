@@ -34,3 +34,11 @@ tasks.named('test') {
 jar {
     enabled = false
 }
+
+bootRun {
+    systemProperties = [
+            'DB_CLASS_NAME': project.property('DB_CLASS_NAME'),
+            'DB_URL'       : project.property('DB_URL'),
+            'DB_USERNAME'  : project.property('DB_USERNAME')
+    ]
+}
