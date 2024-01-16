@@ -16,6 +16,7 @@
     <select id="findByUsername">
         select id,
                username,
+               password,
                nickname,
                total_balance,
                reg_date,
@@ -27,6 +28,7 @@
     <select id="findById">
         select id,
                username,
+               password,
                nickname,
                total_balance,
                reg_date,
