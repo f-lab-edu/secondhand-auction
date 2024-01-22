@@ -8,8 +8,8 @@
             keyProperty="auctionNo" keyColumn="auction_no">
     <![CDATA[
         insert into Auction
-            (item_no, bid, reg_id, reg_date)
-        values (#{itemNo}, #{bid}, #{regId}, NOW())
+            (item_no, bid, reg_id)
+        values (#{itemNo}, #{bid}, #{regId})
         ]]>
     </insert>
 

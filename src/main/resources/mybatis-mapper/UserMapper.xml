@@ -8,8 +8,8 @@
             keyProperty="id" keyColumn="id">
     <![CDATA[
         insert into Users
-            (id, name, password, total_balance, reg_date, upt_date)
-        values (#{id}, #{name}, #{password}, #{totalBalance}, NOW(), NOW())
+            (id, name, password, total_balance)
+        values (#{id}, #{name}, #{password}, #{totalBalance})
         ]]>
     </insert>
 
@@ -29,7 +29,6 @@
         update
             Users
         set total_balance = total_balance + #{totalBalance}
-          , upt_date      = NOW()
         where id = #{id}
         ]]>
     </update>
