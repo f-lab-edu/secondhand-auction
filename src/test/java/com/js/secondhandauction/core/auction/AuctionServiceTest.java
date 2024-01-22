@@ -9,6 +9,7 @@ import com.js.secondhandauction.core.auction.repository.AuctionRepository;
 import com.js.secondhandauction.core.auction.service.AuctionService;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
+import com.js.secondhandauction.core.item.exception.AlreadySoldoutException;
 import com.js.secondhandauction.core.item.service.ItemService;
 import com.js.secondhandauction.core.user.domain.User;
 import com.js.secondhandauction.core.user.service.UserService;
@@ -41,95 +42,118 @@ public class AuctionServiceTest {
     private ItemService itemService;
 
 
-    private final String USER_ID = "1";
+    private final long ITEM_REG_ID = 100L;
+    private final long USER_ID = 1L;
 
-    private final long ITEM_ID = 2L;
+    private final long USER_ID2 = 2L;
+
+    private final long NO_TICK_ITEM_NO = 2L;
+
+    private final long TICK_ITEM_NO = 3L;
+
+    private final long SOLDOUT_ITEM_NO = 4L;
 
     private Auction auction;
 
     private AuctionRequest auctionRequest;
 
+    private User user;
+
+    private User user2;
+
+    private Item NO_TICK_ITEM;
+
+    private Item TICK_ITEM;
+
+    private Item SOLDOUT_ITEM;
+
 
     @BeforeEach
     public void setup() {
-        User user = User.builder()
+        user = User.builder()
                 .id(USER_ID)
-                .name("Test User")
+                .username("Test User")
+                .nickname("Test Name")
+                .totalBalance(10000000)
                 .build();
 
-        Item item = Item.builder()
-                .itemNo(ITEM_ID)
+        user2 = User.builder()
+                .id(USER_ID2)
+                .username("Test User")
+                .nickname("Test Name")
+                .totalBalance(10000000)
+                .build();
+
+        NO_TICK_ITEM = Item.builder()
+                .itemNo(ITEM_REG_ID)
                 .item("Test Item")
                 .state(State.ONSALE)
                 .betTime(5)
                 .regPrice(300000)
                 .build();
 
-        auction = Auction.builder()
-                .bid(500000)
-                .itemNo(ITEM_ID)
-                .regId(USER_ID)
+        TICK_ITEM = Item.builder()
+                .itemNo(ITEM_REG_ID)
+                .item("Test Item")
+                .state(State.ONSALE)
+                .betTime(5)
+                .regPrice(300000)
                 .build();
 
-        auctionRequest = new AuctionRequest(ITEM_ID, 500000);
+        SOLDOUT_ITEM = Item.builder()
+                .itemNo(ITEM_REG_ID)
+                .item("Test Item")
+                .state(State.SOLDOUT)
+                .betTime(5)
+                .regPrice(300000)
+                .build();
 
-        Mockito.when(userService.getUser(Mockito.anyString())).thenReturn(user);
-        Mockito.when(itemService.getItem(Mockito.anyLong())).thenReturn(item);
+        Mockito.when(itemService.getItem(NO_TICK_ITEM_NO)).thenReturn(NO_TICK_ITEM);
+        Mockito.when(itemService.getItem(TICK_ITEM_NO)).thenReturn(TICK_ITEM);
+        Mockito.when(itemService.getItem(SOLDOUT_ITEM_NO)).thenReturn(SOLDOUT_ITEM);
+
     }
 
     @Test
-    @DisplayName("입찰을 한다.")
+    @DisplayName("경매를 생성한다")
     void testCreateAuction() {
 
-        Mockito.when(auctionRepository.getCountTick(Mockito.anyLong())).thenReturn(0);
+        auctionRequest = new AuctionRequest(NO_TICK_ITEM_NO, 500000);
 
-        AuctionResponse createdAuction = auctionService.createAuction(USER_ID, auctionRequest);
+        //정상 입찰
+        Mockito.when(auctionRepository.getCountTick(NO_TICK_ITEM_NO)).thenReturn(0);
+
+        AuctionResponse createdAuction = auctionService.createAuction(user, auctionRequest);
         assertNotNull(createdAuction);
         assertThat(createdAuction.getBid()).isEqualTo(500000);
 
+        AuctionRequest soldAuctionRequest = new AuctionRequest(SOLDOUT_ITEM_NO, 500000);
 
-    }
+        //판매 된 물건 입찰 실패
+        Assertions.assertThrows(AlreadySoldoutException.class,
+                () -> auctionService.createAuction(user, soldAuctionRequest));
 
-    @Test
-    @DisplayName("한 유저가 어떤아이템에 중복 입찰을 해 입찰에 실패한다.")
-    void testCreateAuctionThrowDuplicateUserTickException() {
-
-        Mockito.when(auctionRepository.getCountTick(Mockito.anyLong())).thenReturn(1);
+        //중복 입찰 실패
+        Mockito.when(auctionRepository.getCountTick(TICK_ITEM_NO)).thenReturn(1);
 
         Auction lastTick = Auction.builder()
                 .bid(400000)
                 .regId(USER_ID)
-                .itemNo(ITEM_ID)
+                .itemNo(TICK_ITEM_NO)
                 .build();
 
+        Mockito.when(auctionRepository.getLastTick(TICK_ITEM_NO)).thenReturn(lastTick);
 
-        Mockito.when(auctionRepository.getLastTick(Mockito.anyLong())).thenReturn(lastTick);
+        AuctionRequest dupAuctionRequest = new AuctionRequest(TICK_ITEM_NO, 500000);
 
         Assertions.assertThrows(DuplicateUserTickException.class,
-                () -> auctionService.createAuction(USER_ID, auctionRequest));
+                () -> auctionService.createAuction(user, dupAuctionRequest));
 
-    }
-
-    @Test
-    @DisplayName("최소 베팅금액을 넘지 못해 입찰에 실패한다.")
-    void testCreateAuctionThrowNotOverMinBidException() {
-
-        Mockito.when(auctionRepository.getCountTick(Mockito.anyLong())).thenReturn(1);
-
-        Auction lastTick = Auction.builder()
-                .bid(400000)
-                .regId("100")
-                .itemNo(ITEM_ID)
-                .build();
-
-        Mockito.when(auctionRepository.getLastTick(Mockito.anyLong())).thenReturn(lastTick);
-
-        auction.setBid(410000);
+        //최소 베팅 금액
+        AuctionRequest newAuctionRequest = new AuctionRequest(TICK_ITEM_NO, 410000);
 
         Assertions.assertThrows(NotOverMinBidException.class,
-                () -> auctionService.createAuction(USER_ID, auctionRequest));
-
+                () -> auctionService.createAuction(user2, newAuctionRequest));
     }
-
 
 }

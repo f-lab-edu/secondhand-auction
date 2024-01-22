@@ -13,15 +13,32 @@
         ]]>
     </insert>
 
-    <select id="findById">
+    <select id="findByUsername">
+    <![CDATA[
         select id,
-               name,
+               username,
                password,
+               nickname,
+               total_balance,
+               reg_date,
+               upt_date
+        from Users
+        where username = #{username
+        ]]>
+    </select>
+
+    <select id="findById">
+    <![CDATA[
+        select id,
+               username,
+               password,
+               nickname,
                total_balance,
                reg_date,
                upt_date
         from Users
         where id = #{id}
+        ]]>
     </select>
 
     <update id="updateTotalBalance">
@@ -29,7 +46,7 @@
         update
             Users
         set total_balance = total_balance + #{totalBalance}
-        where id = #{id}
+        where username = #{username}
         ]]>
     </update>
 </mapper>
