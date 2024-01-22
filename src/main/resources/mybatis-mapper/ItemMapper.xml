@@ -5,11 +5,9 @@
 
 <mapper namespace="com.js.secondhandauction.core.item.repository.ItemRepository">
     <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item">
-    <![CDATA[
         insert into Item
-            (item, reg_date, upt_date, reg_price, state, reg_id, bet_time)
-        values (#{item}, NOW(), NOW(), #{regPrice}, #{state}, #{regId}, #{betTime})
-        ]]>
+            (item, reg_price, state, reg_id, bet_time)
+        values (#{item}, #{regPrice}, #{state}, #{regId}, #{betTime})
     </insert>
 
     <select id="findByItemNo" resultType="com.js.secondhandauction.core.item.domain.Item">
@@ -32,7 +30,6 @@
         update
             Item
         set item      = #{item}
-          , upt_date  = NOW()
           , reg_price = #{regPrice}
           , state     = #{state}
           , bet_time  = #{betTime}
@@ -45,7 +42,6 @@
         update
             Item
         set item      = #{item}
-          , upt_date  = NOW()
           , reg_price = #{regPrice}
         where item_no = #{itemNo}
         ]]>
@@ -63,8 +59,7 @@
     <![CDATA[
         update
             Item
-        set state    = #{state}
-          , upt_date = NOW()
+        set state = #{state}
         where item_no = #{itemNo}
         ]]>
     </update>
