@@ -1,2 +1,2 @@
 #!/bin/sh
-java -jar /app.jar --spring.datasource.url=$DB_URL --spring.datasource.username=$DB_USERNAME --spring.datasource.password=$DB_PASSWORD
+java -jar /app.jar --spring.datasource.url=$DB_URL --spring.datasource.username=$DB_USERNAME --spring.datasource.password=$DB_PASSWORD --spring.data.redis.host=$REDIS_HOST --spring.data.redis.port=$REDIS_PORT
