@@ -10,8 +10,9 @@ public class SchedulerService {
     @Autowired
     private ItemService itemService;
 
-    @Scheduled(cron = "0 */1 * * * *")
-    public void checkStateItemsPerMinutes() {
-        itemService.updateStateCheckItems();
-    }
+    //배치 임시 비활성화
+    //@Scheduled(cron = "0 */1 * * * *")
+    //public void checkStateItemsPerMinutes() {
+    //    itemService.updateStateCheckItems();
+    //}
 }
