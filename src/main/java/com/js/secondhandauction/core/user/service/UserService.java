@@ -11,6 +11,7 @@ import com.js.secondhandauction.core.user.exception.UserException;
 import com.js.secondhandauction.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class UserService {
     /**
      * 회원 조회
      */
+    @Cacheable(value = "user", key = "#username")
     public UserGetResponse getUser(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(NotFoundUserException::new);
         return UserGetResponse.of(user);

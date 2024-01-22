@@ -4,11 +4,12 @@ import com.js.secondhandauction.core.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class UserGetResponse {
+public class UserGetResponse implements Serializable {
     private long id;
     private String username;
     private String nickname;
