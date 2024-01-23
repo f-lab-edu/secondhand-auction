@@ -1,5 +1,6 @@
 package com.js.secondhandauction.core.item.service;
 
+import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
@@ -10,6 +11,8 @@ import com.js.secondhandauction.core.item.exception.NotFoundItemException;
 import com.js.secondhandauction.core.item.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.xml.datatype.Duration;
@@ -44,6 +47,7 @@ public class ItemService {
     /**
      * 상품조회
      */
+    @Cacheable(value = RedisPolicy.ITEM_KEY, key = "#itemNo")
     public Item getItem(long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
     }
@@ -51,6 +55,7 @@ public class ItemService {
     /**
      * 상품수정
      */
+    @CachePut(value = RedisPolicy.ITEM_KEY, key = "#itemNo")
     public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);

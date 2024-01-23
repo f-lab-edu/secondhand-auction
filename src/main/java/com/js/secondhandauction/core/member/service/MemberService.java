@@ -1,5 +1,6 @@
 package com.js.secondhandauction.core.member.service;
 
+import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.dto.MemberCreateRequest;
@@ -11,7 +12,9 @@ import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +48,7 @@ public class MemberService {
     /**
      * 회원 조회
      */
-    @Cacheable(value = "member", key = "#userId")
+    @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#userId")
     public MemberGetResponse getMemberByUserId(String userId) {
         Member member = memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
@@ -54,6 +57,7 @@ public class MemberService {
     /**
      * 회원 조회
      */
+    @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#id")
     public MemberGetResponse getMemberByUniqId(long id) {
         Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
@@ -63,8 +67,16 @@ public class MemberService {
     /**
      * 회원 가진금액 더하기 Username 으로
      */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
+            }
+    )
     public void updateMemberTotalBalanceByUserId(String userId, int totalBalance) {
-        if (memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new).getTotalBalance() + totalBalance > 0) {
+        Member member = memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
+
+        if (member.getTotalBalance() + totalBalance > 0) {
             memberRepository.updateTotalBalance(userId, totalBalance);
         } else {
             throw new CannotTotalBalanceMinusException();
@@ -74,11 +86,17 @@ public class MemberService {
     /**
      * 회원 가진금액 더하기 id로
      */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
+            }
+    )
     public void updateMemberTotalBalanceByUniqId(long id, int totalBalance) {
-        Member user = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+        Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
 
-        if (user.getTotalBalance() + totalBalance > 0) {
-            memberRepository.updateTotalBalance(user.getUserId(), totalBalance);
+        if (member.getTotalBalance() + totalBalance > 0) {
+            memberRepository.updateTotalBalance(member.getUserId(), totalBalance);
         } else {
             throw new CannotTotalBalanceMinusException();
         }
