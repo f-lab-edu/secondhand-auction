@@ -26,7 +26,7 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(request -> request
                         //.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/member/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login

@@ -11,8 +11,9 @@ import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.exception.AlreadySoldoutException;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.user.domain.User;
-import com.js.secondhandauction.core.user.service.UserService;
+import com.js.secondhandauction.core.member.domain.Member;
+import com.js.secondhandauction.core.member.dto.MemberGetResponse;
+import com.js.secondhandauction.core.member.service.MemberService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,52 +35,36 @@ public class AuctionServiceTest {
     private AuctionService auctionService;
     @Mock
     private AuctionRepository auctionRepository;
-
-    @Mock
-    private UserService userService;
-
     @Mock
     private ItemService itemService;
-
-
+    @Mock
+    private MemberService memberService;
     private final long ITEM_REG_ID = 100L;
-    private final long USER_ID = 1L;
-
-    private final long USER_ID2 = 2L;
-
+    private final long MEMBER_ID = 1L;
+    private final long MEMBER_ID2 = 2L;
     private final long NO_TICK_ITEM_NO = 2L;
-
     private final long TICK_ITEM_NO = 3L;
-
     private final long SOLDOUT_ITEM_NO = 4L;
-
-    private Auction auction;
-
     private AuctionRequest auctionRequest;
-
-    private User user;
-
-    private User user2;
-
+    private MemberGetResponse member;
+    private MemberGetResponse member2;
     private Item NO_TICK_ITEM;
-
     private Item TICK_ITEM;
-
     private Item SOLDOUT_ITEM;
 
 
     @BeforeEach
     public void setup() {
-        user = User.builder()
-                .id(USER_ID)
-                .username("Test User")
+        member = MemberGetResponse.builder()
+                .uniqId(MEMBER_ID)
+                .userId("Test User")
                 .nickname("Test Name")
                 .totalBalance(10000000)
                 .build();
 
-        user2 = User.builder()
-                .id(USER_ID2)
-                .username("Test User")
+        member2 = MemberGetResponse.builder()
+                .uniqId(MEMBER_ID2)
+                .userId("Test User")
                 .nickname("Test Name")
                 .totalBalance(10000000)
                 .build();
@@ -120,10 +105,14 @@ public class AuctionServiceTest {
 
         auctionRequest = new AuctionRequest(NO_TICK_ITEM_NO, 500000);
 
+        Mockito.when(memberService.getMemberByUniqId(MEMBER_ID)).thenReturn(member);
+
+        Mockito.when(memberService.getMemberByUniqId(MEMBER_ID2)).thenReturn(member2);
+
         //정상 입찰
         Mockito.when(auctionRepository.getCountTick(NO_TICK_ITEM_NO)).thenReturn(0);
 
-        AuctionResponse createdAuction = auctionService.createAuction(user, auctionRequest);
+        AuctionResponse createdAuction = auctionService.createAuction(MEMBER_ID, auctionRequest);
         assertNotNull(createdAuction);
         assertThat(createdAuction.getBid()).isEqualTo(500000);
 
@@ -131,14 +120,14 @@ public class AuctionServiceTest {
 
         //판매 된 물건 입찰 실패
         Assertions.assertThrows(AlreadySoldoutException.class,
-                () -> auctionService.createAuction(user, soldAuctionRequest));
+                () -> auctionService.createAuction(MEMBER_ID, soldAuctionRequest));
 
         //중복 입찰 실패
         Mockito.when(auctionRepository.getCountTick(TICK_ITEM_NO)).thenReturn(1);
 
         Auction lastTick = Auction.builder()
                 .bid(400000)
-                .regId(USER_ID)
+                .regId(MEMBER_ID)
                 .itemNo(TICK_ITEM_NO)
                 .build();
 
@@ -147,13 +136,13 @@ public class AuctionServiceTest {
         AuctionRequest dupAuctionRequest = new AuctionRequest(TICK_ITEM_NO, 500000);
 
         Assertions.assertThrows(DuplicateUserTickException.class,
-                () -> auctionService.createAuction(user, dupAuctionRequest));
+                () -> auctionService.createAuction(MEMBER_ID, dupAuctionRequest));
 
         //최소 베팅 금액
         AuctionRequest newAuctionRequest = new AuctionRequest(TICK_ITEM_NO, 410000);
 
         Assertions.assertThrows(NotOverMinBidException.class,
-                () -> auctionService.createAuction(user2, newAuctionRequest));
+                () -> auctionService.createAuction(MEMBER_ID2, newAuctionRequest));
     }
 
 }

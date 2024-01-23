@@ -1,5 +1,6 @@
 package com.js.secondhandauction.core.auction.service;
 
+import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
@@ -10,9 +11,9 @@ import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.exception.AlreadySoldoutException;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.user.domain.User;
-import com.js.secondhandauction.core.user.exception.NotOverTotalBalanceException;
-import com.js.secondhandauction.core.user.service.UserService;
+import com.js.secondhandauction.core.member.domain.Member;
+import com.js.secondhandauction.core.member.exception.NotOverTotalBalanceException;
+import com.js.secondhandauction.core.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class AuctionService {
     ItemService itemService;
 
     @Autowired
-    UserService userService;
+    MemberService memberService;
 
     final int MIN_BETTING_PERCENT = 5;
 
@@ -43,11 +44,11 @@ public class AuctionService {
      * 경매 등록
      */
     @Transactional
-    public AuctionResponse createAuction(User user, AuctionRequest auctionRequest) {
+    public AuctionResponse createAuction(long id, AuctionRequest auctionRequest) {
         Auction auction = auctionRequest.toEntity();
-        auction.setRegId(user.getId());
+        auction.setRegId(id);
 
-        validateUser(user, auction);
+        validateUser(id, auction);
 
         Item item = validateItem(auction);
 
@@ -66,7 +67,7 @@ public class AuctionService {
             isImmediatePurchase = isImmediatelyPurchasableByRegPrice(item.getRegPrice(), auction.getBid());
         }
 
-        updateUserBalanceAndCreateAuction(user, auction, lastTick);
+        updateUserBalanceAndCreateAuction(auction, lastTick);
 
         if (isFinalBid(countTick, item.getBetTime()) || isImmediatePurchase) {
             finishAuction(auction, item);
@@ -82,12 +83,11 @@ public class AuctionService {
         return auctionRepository.findByItemNo(itemNo);
     }
 
-    private void validateUser(User user, Auction auction) {
-        if (user.getTotalBalance() < auction.getBid()) {
+    private void validateUser(long id, Auction auction) {
+        int userTotalBalance = memberService.getMemberByUniqId(id).getTotalBalance();
+        if (userTotalBalance < auction.getBid()) {
             throw new NotOverTotalBalanceException();
         }
-
-        //return user;
     }
 
     private Item validateItem(Auction auction) {
@@ -136,11 +136,11 @@ public class AuctionService {
     }
 
 
-    private void updateUserBalanceAndCreateAuction(User user, Auction auction, Auction lastTick) {
-        userService.updateUserTotalBalanceById(auction.getRegId(), auction.getBid() * -1);
+    private void updateUserBalanceAndCreateAuction(Auction auction, Auction lastTick) {
+        memberService.updateMemberTotalBalanceByUniqId(auction.getRegId(), auction.getBid() * -1);
 
         if (lastTick != null) {
-            userService.updateUserTotalBalanceById(lastTick.getRegId(), lastTick.getBid());
+            memberService.updateMemberTotalBalanceByUniqId(lastTick.getRegId(), lastTick.getBid());
         }
 
         auctionRepository.create(auction);
@@ -151,7 +151,7 @@ public class AuctionService {
     }
 
     private void finishAuction(Auction auction, Item item) {
-        userService.updateUserTotalBalanceById(item.getRegId(), auction.getBid());
+        memberService.updateMemberTotalBalanceByUniqId(item.getRegId(), auction.getBid());
 
         itemService.updateItemState(item.getItemNo(), State.SOLDOUT);
 

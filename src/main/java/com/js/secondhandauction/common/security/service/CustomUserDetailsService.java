@@ -1,7 +1,8 @@
-package com.js.secondhandauction.core.user.service;
+package com.js.secondhandauction.common.security.service;
 
 
-import com.js.secondhandauction.core.user.repository.UserRepository;
+import com.js.secondhandauction.core.member.domain.Member;
+import com.js.secondhandauction.core.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +15,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
+    public CustomUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        return CustomUserDetails.of(memberRepository.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException(userId)));
     }
 }
