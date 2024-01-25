@@ -13,5 +13,7 @@ public interface MemberRepository {
 
     Optional<Member> findByUniqId(long id);
 
-    void updateTotalBalance(String username, int totalBalance);
+    void updateTotalBalance(String userId, int totalBalance);
+
+    void updatePassword(String userId, String password);
 }

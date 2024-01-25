@@ -51,4 +51,13 @@
         where user_id = #{userId}
         ]]>
     </update>
+
+    <update id="updatePassword">
+    <![CDATA[
+        update
+            Member
+        set password = #{password}
+        where user_id = #{userId}
+        ]]>
+    </update>
 </mapper>

@@ -6,7 +6,6 @@ import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.dto.MemberCreateRequest;
 import com.js.secondhandauction.core.member.dto.MemberCreateResponse;
 import com.js.secondhandauction.core.member.dto.MemberGetResponse;
-import com.js.secondhandauction.core.member.exception.CannotTotalBalanceMinusException;
 import com.js.secondhandauction.core.member.exception.NotFoundMemberException;
 import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.repository.MemberRepository;
@@ -33,6 +32,8 @@ public class MemberService {
     public MemberCreateResponse createMember(MemberCreateRequest memberCreateRequest) {
         checkUserIdValidity(memberCreateRequest);
 
+        checkPasswordValidity(memberCreateRequest.password());
+
         Member member = Member.builder()
                 .userId(memberCreateRequest.userId())
                 .nickname(memberCreateRequest.nickname())
@@ -46,7 +47,7 @@ public class MemberService {
     }
 
     /**
-     * 회원 조회
+     * 회원 조회 userid 로
      */
     @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#userId")
     public MemberGetResponse getMemberByUserId(String userId) {
@@ -55,7 +56,7 @@ public class MemberService {
     }
 
     /**
-     * 회원 조회
+     * 회원 조회 uniqid로
      */
     @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#id")
     public MemberGetResponse getMemberByUniqId(long id) {
@@ -65,41 +66,50 @@ public class MemberService {
 
 
     /**
-     * 회원 가진금액 더하기 Username 으로
+     * 회원 가진금액 더하기 UserId 로
      */
-    @Caching(
-            evict = {
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
-            }
-    )
     public void updateMemberTotalBalanceByUserId(String userId, int totalBalance) {
         Member member = memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
+
+        evictCache(member);
 
         if (member.getTotalBalance() + totalBalance > 0) {
             memberRepository.updateTotalBalance(userId, totalBalance);
         } else {
-            throw new CannotTotalBalanceMinusException();
+            throw new MemberException(ErrorCode.CANNOT_TOTALBALANCE_MINUS);
         }
     }
 
     /**
-     * 회원 가진금액 더하기 id로
+     * 회원 가진금액 더하기 uniqId로
      */
-    @Caching(
-            evict = {
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
-            }
-    )
     public void updateMemberTotalBalanceByUniqId(long id, int totalBalance) {
         Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+
+        evictCache(member);
 
         if (member.getTotalBalance() + totalBalance > 0) {
             memberRepository.updateTotalBalance(member.getUserId(), totalBalance);
         } else {
-            throw new CannotTotalBalanceMinusException();
+            throw new MemberException(ErrorCode.CANNOT_TOTALBALANCE_MINUS);
         }
+    }
+
+    /**
+     * 회원 비밀번호 변경
+     */
+    public void updateMemberPassword(String userId, String password) {
+        Member member = memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
+
+        evictCache(member);
+
+        checkPasswordValidity(password);
+
+        if (passwordEncoder.matches(password, member.getPassword())) {
+            throw new MemberException(ErrorCode.SAME_PASSWORD);
+        }
+
+        memberRepository.updatePassword(userId, passwordEncoder.encode(password));
     }
 
     /**
@@ -107,7 +117,23 @@ public class MemberService {
      */
     private void checkUserIdValidity(MemberCreateRequest memberCreateRequest) {
         if (memberRepository.findByUserId(memberCreateRequest.userId()).isPresent()) {
-            throw new MemberException(ErrorCode.ALREADY_EXIST_USER);
+            throw new MemberException(ErrorCode.ALREADY_EXIST_MEMBER);
         }
+    }
+
+    private void checkPasswordValidity(String password) {
+        String regex = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*()]).{8,20}$";
+        if (!password.matches(regex)) {
+            throw new MemberException(ErrorCode.PASSWORD_RULE);
+        }
+    }
+
+    @Caching(
+            evict = {
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
+                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
+            }
+    )
+    public void evictCache(Member member) {
     }
 }

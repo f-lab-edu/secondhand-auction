@@ -4,6 +4,6 @@ import com.js.secondhandauction.common.exception.ErrorCode;
 
 public class NotFoundMemberException extends MemberException {
     public NotFoundMemberException() {
-        super(ErrorCode.NOT_FOUND_USER);
+        super(ErrorCode.NOT_FOUND_MEMBER);
     }
 }

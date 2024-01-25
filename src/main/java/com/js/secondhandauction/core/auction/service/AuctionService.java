@@ -1,7 +1,7 @@
 package com.js.secondhandauction.core.auction.service;
 
 import com.js.secondhandauction.common.config.RedisPolicy;
-import com.js.secondhandauction.common.security.service.CustomUserDetails;
+import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
@@ -12,7 +12,7 @@ import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.exception.AlreadySoldoutException;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.member.exception.NotOverTotalBalanceException;
+import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +88,7 @@ public class AuctionService {
     private void validateUser(long id, Auction auction) {
         int userTotalBalance = memberService.getMemberByUniqId(id).getTotalBalance();
         if (userTotalBalance < auction.getBid()) {
-            throw new NotOverTotalBalanceException();
+            throw new MemberException(ErrorCode.CANNOT_TOTALBALANCE_MINUS);
         }
     }
 
