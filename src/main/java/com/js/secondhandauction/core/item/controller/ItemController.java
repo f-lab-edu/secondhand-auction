@@ -1,11 +1,12 @@
 package com.js.secondhandauction.core.item.controller;
 
 import com.js.secondhandauction.common.response.ApiResponse;
+import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.dto.ItemRequest;
 import com.js.secondhandauction.core.item.dto.ItemResponse;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.user.domain.User;
+import com.js.secondhandauction.core.member.domain.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class ItemController {
      * 상품 등록
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<ItemResponse>> createItem(@AuthenticationPrincipal User user, @RequestBody ItemRequest itemRequest) {
-        final long id = user.getId();
+    public ResponseEntity<ApiResponse<ItemResponse>> createItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody ItemRequest itemRequest) {
+        final long id = customUserDetails.getId();
         return new ResponseEntity<>(ApiResponse.success(itemService.createItem(id, itemRequest)), HttpStatus.CREATED);
     }
 
@@ -39,8 +40,8 @@ public class ItemController {
      * 상품 수정
      */
     @PutMapping("/{itemNo}")
-    public ResponseEntity<ApiResponse<ItemResponse>> updateItem(@AuthenticationPrincipal User user, @PathVariable long itemNo, @RequestBody ItemRequest itemRequest) {
-        final long id = user.getId();
+    public ResponseEntity<ApiResponse<ItemResponse>> updateItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable long itemNo, @RequestBody ItemRequest itemRequest) {
+        final long id = customUserDetails.getId();
         return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, id, itemRequest)), HttpStatus.OK);
     }
 
