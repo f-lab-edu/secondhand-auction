@@ -1,5 +1,6 @@
 package com.js.secondhandauction.core.auction.service;
 
+import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
@@ -11,11 +12,11 @@ import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.exception.AlreadySoldoutException;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.exception.NotOverTotalBalanceException;
 import com.js.secondhandauction.core.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +80,7 @@ public class AuctionService {
     /**
      * 경매 조회
      */
+    @Cacheable(value = RedisPolicy.AUCTION_KEY, key = "#itemNo")
     public List<Auction> getAuctions(long itemNo) {
         return auctionRepository.findByItemNo(itemNo);
     }
