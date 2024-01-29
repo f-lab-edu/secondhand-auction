@@ -21,6 +21,7 @@ public enum ErrorCode {
     NOT_FOUND_ITEM(404, "I001", "존재하지 않는 아이템입니다."),
     ALREADY_SOLDOUT(422, "I002", "이미 판매된 아이템입니다."),
     CANNOT_UPDATE_SOLDOUT_ITEM(422, "I003", "판매된 아이템은 수정할 수 없습니다."),
+    EDIT_ONLY_REGID(422, "I004", "등록자만 수정할 수 있습니다."),
 
     //AUCTION
     DUPLICATE_MEMBER_TICK(400, "A001", "같은 회원이 반복입찰할 수 없습니다."),

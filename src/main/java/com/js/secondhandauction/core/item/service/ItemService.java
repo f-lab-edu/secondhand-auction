@@ -54,6 +54,8 @@ public class ItemService {
      */
     @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
+        isEditableItem(id, itemNo);
+
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);
         item.setRegId(id);
@@ -109,5 +111,12 @@ public class ItemService {
                 log.debug("상품번호: {} 상태: {} 로 변경", itemExpirationCheck.getItemNo(), State.SOLDOUT);
             }
         });
+    }
+
+    private void isEditableItem(long id, long itemNo) {
+        Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
+        if (item.getRegId() != id) {
+            throw new ItemException(ErrorCode.EDIT_ONLY_REGID);
+        }
     }
 }
