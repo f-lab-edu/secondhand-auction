@@ -3,8 +3,8 @@ package com.js.secondhandauction.common.security.service;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.domain.Role;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,6 +17,8 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     private long uniqId;
     private String userId;
+    private String password;
+    @Getter
     private Role role;
 
     @Override
@@ -26,7 +28,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override
@@ -59,6 +61,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public static CustomUserDetails of(final Member member) {
-        return new CustomUserDetails(member.getUniqId(), member.getUserId(), member.getRole());
+        return new CustomUserDetails(member.getUniqId(), member.getUserId(), member.getPassword(), member.getRole());
     }
 }

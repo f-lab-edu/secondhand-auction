@@ -16,24 +16,18 @@ import java.util.Collection;
 
 
 @Builder
+@Getter
 public class Member {
-    @Getter
     private long uniqId;
-    @Getter
     private String userId;
     private String password;
-    @Getter
     private String nickname;
-    @Getter
     private int totalBalance;
-    @Getter
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime regDate;
-    @Getter
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime uptDate;
-    @Getter
     private Role role;
 }
