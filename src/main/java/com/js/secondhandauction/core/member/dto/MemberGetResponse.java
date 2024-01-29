@@ -1,19 +1,22 @@
 package com.js.secondhandauction.core.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.domain.Role;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
+import org.springframework.context.annotation.Bean;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberGetResponse implements Serializable {
     private long uniqId;
     private String userId;

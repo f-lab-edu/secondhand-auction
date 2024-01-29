@@ -12,10 +12,6 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.js.secondhandauction.common.config.RedisPolicy.*;
 
 @Configuration
 public class CacheConfig {
@@ -30,15 +26,8 @@ public class CacheConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .entryTtl(Duration.ofSeconds(30));
 
-        Map<String, RedisCacheConfiguration> config = new HashMap<>();
-
-        config.put(MEMBER_KEY, redisCacheConfiguration);
-        config.put(ITEM_KEY, redisCacheConfiguration);
-        config.put(AUCTION_KEY, redisCacheConfiguration);
-
         return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(connectionFactory)
                 .cacheDefaults(redisCacheConfiguration)
-                .withInitialCacheConfigurations(config)
                 .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.js.secondhandauction.core.auction.service;
 
-import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
@@ -16,7 +15,6 @@ import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,7 +78,6 @@ public class AuctionService {
     /**
      * 경매 조회
      */
-    @Cacheable(value = RedisPolicy.AUCTION_KEY, key = "#itemNo")
     public List<Auction> getAuctions(long itemNo) {
         return auctionRepository.findByItemNo(itemNo);
     }
