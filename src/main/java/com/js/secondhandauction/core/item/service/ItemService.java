@@ -1,6 +1,5 @@
 package com.js.secondhandauction.core.item.service;
 
-import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
@@ -11,14 +10,12 @@ import com.js.secondhandauction.core.item.exception.NotFoundItemException;
 import com.js.secondhandauction.core.item.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import javax.xml.datatype.Duration;
 import java.time.LocalDateTime;
 
-import static com.js.secondhandauction.core.item.domain.State.*;
 
 @Service
 @Slf4j
@@ -47,7 +44,7 @@ public class ItemService {
     /**
      * 상품조회
      */
-    @Cacheable(value = RedisPolicy.ITEM_KEY, key = "#itemNo")
+    @Cacheable(key = "#itemNo", value = "ITEM_ITEMNO")
     public Item getItem(long itemNo) {
         return itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
     }
@@ -55,7 +52,7 @@ public class ItemService {
     /**
      * 상품수정
      */
-    @CachePut(value = RedisPolicy.ITEM_KEY, key = "#itemNo")
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);
