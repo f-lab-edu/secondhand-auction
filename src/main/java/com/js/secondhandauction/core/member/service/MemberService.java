@@ -1,6 +1,5 @@
 package com.js.secondhandauction.core.member.service;
 
-import com.js.secondhandauction.common.config.RedisPolicy;
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.dto.MemberCreateRequest;
@@ -49,7 +48,7 @@ public class MemberService {
     /**
      * 회원 조회 userid 로
      */
-    @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#userId")
+    @Cacheable(key = "#userId", value = "MEMBER_USERID")
     public MemberGetResponse getMemberByUserId(String userId) {
         Member member = memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
@@ -58,7 +57,7 @@ public class MemberService {
     /**
      * 회원 조회 uniqid로
      */
-    @Cacheable(value = RedisPolicy.MEMBER_KEY, key = "#id")
+    @Cacheable(key = "#id", value = "MEMBER_UNIQID")
     public MemberGetResponse getMemberByUniqId(long id) {
         Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
@@ -130,8 +129,8 @@ public class MemberService {
 
     @Caching(
             evict = {
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.userId"),
-                    @CacheEvict(value = RedisPolicy.MEMBER_KEY, key = "#member.uniqId")
+                    @CacheEvict(key = "#member.userId", value = "MEMBER_USERID"),
+                    @CacheEvict(key = "#member.uniqId", value = "MEMBER_UNIQID")
             }
     )
     public void evictCache(Member member) {
