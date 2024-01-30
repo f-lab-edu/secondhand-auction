@@ -140,6 +140,8 @@ public class AuctionService {
 
         if (lastTick != null) {
             memberService.updateMemberTotalBalanceByUniqId(lastTick.getRegId(), lastTick.getBid());
+        } else {
+            itemService.updateItemIsBid(auction.getItemNo(), true);
         }
 
         auctionRepository.create(auction);

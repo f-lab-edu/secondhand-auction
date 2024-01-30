@@ -4,24 +4,29 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.js.secondhandauction.core.item.repository.ItemRepository">
-    <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item">
+    <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item" useGeneratedKeys="true"
+            keyProperty="itemNo"
+            keyColumn="item_no">
         insert into Item
-            (item, reg_price, state, reg_id, bet_time)
-        values (#{item}, #{regPrice}, #{state}, #{regId}, #{betTime})
+            (item, item_desc, reg_price, state, reg_id, bet_time)
+        values (#{item}, #{itemDesc}, #{regPrice}, #{state}, #{regId}, #{betTime})
     </insert>
 
     <select id="findByItemNo" resultType="com.js.secondhandauction.core.item.domain.Item">
     <![CDATA[
         select item_no,
                item,
+               item_desc,
                reg_date,
                upt_date,
                reg_price,
                state,
                reg_id,
-               bet_time
+               bet_time,
+               is_bid
         from Item
         where item_no = #{itemNo}
+          and is_del = 0
         ]]>
     </select>
 
@@ -30,10 +35,12 @@
         update
             Item
         set item      = #{item}
+          , item_desc = #{itemDesc}
           , reg_price = #{regPrice}
           , state     = #{state}
           , bet_time  = #{betTime}
         where item_no = #{itemNo}
+          and is_del = 0
         ]]>
     </update>
 
@@ -42,18 +49,12 @@
         update
             Item
         set item      = #{item}
+          , item_desc = #{itemDesc}
           , reg_price = #{regPrice}
         where item_no = #{itemNo}
+          and is_del = 0
         ]]>
     </update>
-
-    <select id="getState">
-     <![CDATA[
-        select state
-        from Item
-        where item_no = #{itemNo}
-        ]]>
-    </select>
 
     <update id="updateState">
     <![CDATA[
@@ -61,6 +62,27 @@
             Item
         set state = #{state}
         where item_no = #{itemNo}
+          and is_del = 0
+        ]]>
+    </update>
+
+    <update id="updateIsBid">
+    <![CDATA[
+        update
+            Item
+        set is_bid = #{isBid}
+        where item_no = #{itemNo}
+          and is_del = 0
+        ]]>
+    </update>
+
+    <update id="delete">
+    <![CDATA[
+        update
+            Item
+        set is_del = 1
+        where item_no = #{itemNo}
+          and is_del = 0
         ]]>
     </update>
 
@@ -71,6 +93,7 @@
         from Item i
                  LEFT JOIN Auction a ON i.item_no = a.item_no
         where i.state = 'ONSALE'
+          and i.is_del = 0
           and TIMESTAMPADD(day, #{addDay}, i.upt_date) < NOW()
         GROUP BY i.item_no
         ]]>

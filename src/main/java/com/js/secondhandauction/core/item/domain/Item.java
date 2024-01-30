@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class Item {
     private long itemNo;
     private String item;
+    private String itemDesc;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime regDate;
@@ -26,4 +27,5 @@ public class Item {
     private State state;
     private long regId;
     private int betTime;
+    private Boolean isBid;
 }
