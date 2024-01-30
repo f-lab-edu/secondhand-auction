@@ -45,4 +45,14 @@ public class ItemController {
         return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, id, itemRequest)), HttpStatus.OK);
     }
 
+    /**
+     * 상품 삭제
+     */
+    @DeleteMapping("/{itemNo}")
+    public ResponseEntity<ApiResponse<Void>> deleteItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable long itemNo) {
+        final long id = customUserDetails.getId();
+        itemService.deleteItem(itemNo, id);
+        return new ResponseEntity<>(ApiResponse.success(null), HttpStatus.NO_CONTENT);
+    }
+
 }

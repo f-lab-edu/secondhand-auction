@@ -114,6 +114,23 @@ public class ItemService {
         });
     }
 
+    /**
+     * 상품삭제
+     */
+    public void deleteItem(long itemNo, long id) {
+        Item item = isEditableItem(id, itemNo);
+
+        if (item.getState() == State.SOLDOUT) {
+            throw new ItemException(ErrorCode.CANNOT_DELETE_SOLDOUT_ITEM);
+        }
+
+        if (item.getIsBid() && item.getState() == State.ONSALE) {
+            throw new ItemException(ErrorCode.CANNOT_DELETE_BID_ITEM);
+        }
+
+        itemRepository.delete(itemNo);
+    }
+
     private Item isEditableItem(long id, long itemNo) {
         Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
         if (item.getRegId() != id) {

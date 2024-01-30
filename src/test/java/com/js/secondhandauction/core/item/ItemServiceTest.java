@@ -64,7 +64,7 @@ public class ItemServiceTest {
 
     @BeforeEach
     void setup() {
-        itemRequest = new ItemRequest("Test Item", 200000);
+        itemRequest = new ItemRequest("Test Item", "", 200000);
 
         onsaleItem = Item.builder()
                 .itemNo(ONSALE_ITEM_NO)
@@ -165,6 +165,33 @@ public class ItemServiceTest {
         assertThrows(ItemException.class,
                 () -> itemService.updateItem(SOLDOUT_ITEM_NO, USER_ID, itemRequest), ErrorCode.CANNOT_UPDATE_SOLDOUT_ITEM.getMessage());
 
+    }
+
+    @Test
+    @DisplayName("상품을 삭제한다")
+    void testDeleteItem() {
+        when(itemRepository.findByItemNo(ONSALE_ITEM_NO)).thenReturn(Optional.ofNullable(onsaleItem));
+        when(itemRepository.findByItemNo(SOLDOUT_ITEM_NO)).thenReturn(Optional.ofNullable(soldoutItem));
+        when(itemRepository.findByItemNo(UNSOLD_ITEM_NO)).thenReturn(Optional.ofNullable(unsoldItem));
+        when(itemRepository.findByItemNo(ONSALE_IS_BID_ITEM_NO)).thenReturn(Optional.ofNullable(onsaleIsBidItem));
+
+        //등록자만 상품을 삭제할 수 있다.
+        assertThrows(ItemException.class,
+                () -> itemService.deleteItem(ONSALE_ITEM_NO, NOT_REGISTED_USER_ID), ErrorCode.EDIT_ONLY_REGID.getMessage());
+
+        // 상품 삭제
+        itemService.deleteItem(ONSALE_ITEM_NO, USER_ID);
+
+        // 상품 삭제
+        itemService.deleteItem(UNSOLD_ITEM_NO, USER_ID);
+
+        //입찰이 이미 시작된 아이템은 삭제할 수 없다.
+        assertThrows(ItemException.class,
+                () -> itemService.deleteItem(ONSALE_IS_BID_ITEM_NO, USER_ID), ErrorCode.CANNOT_DELETE_BID_ITEM.getMessage());
+
+        //판매 완료된 아이템은 삭제할 수 없다.
+        assertThrows(ItemException.class,
+                () -> itemService.deleteItem(SOLDOUT_ITEM_NO, USER_ID), ErrorCode.CANNOT_DELETE_SOLDOUT_ITEM.getMessage());
     }
 
 }

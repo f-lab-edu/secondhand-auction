@@ -23,5 +23,7 @@ public interface ItemRepository {
 
     int updateIsBid(long itemNo, Boolean isBid);
 
+    int delete(long itemNo);
+
     List<ItemExpirationCheck> getStateCheckItems(int addDay);
 }
