@@ -51,7 +51,11 @@ public class ItemServiceTest {
 
     private final long ONSALE_ITEM_NO = 5L;
 
+    private final long ONSALE_IS_BID_ITEM_NO = 6L;
+
     private Item onsaleItem;
+
+    private Item onsaleIsBidItem;
 
     private Item soldoutItem;
 
@@ -69,6 +73,17 @@ public class ItemServiceTest {
                 .regId(USER_ID)
                 .state(State.ONSALE)
                 .betTime(10)
+                .isBid(false)
+                .build();
+
+        onsaleIsBidItem = Item.builder()
+                .itemNo(ONSALE_ITEM_NO)
+                .item("Test Item")
+                .regPrice(300000)
+                .regId(USER_ID)
+                .state(State.ONSALE)
+                .betTime(10)
+                .isBid(true)
                 .build();
 
         soldoutItem = Item.builder()
@@ -78,6 +93,7 @@ public class ItemServiceTest {
                 .regId(USER_ID)
                 .state(State.SOLDOUT)
                 .betTime(10)
+                .isBid(false)
                 .build();
 
         unsoldItem = Item.builder()
@@ -87,6 +103,7 @@ public class ItemServiceTest {
                 .regId(USER_ID)
                 .state(State.UNSOLD)
                 .betTime(10)
+                .isBid(false)
                 .build();
     }
 
@@ -122,22 +139,15 @@ public class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 상태를 확인한다")
-    void testIsOnSale() {
-        when(itemRepository.getState(ONSALE_ITEM_NO)).thenReturn(State.ONSALE);
-
-        Assertions.assertThat(itemService.getItemState(ONSALE_ITEM_NO)).isEqualTo(State.ONSALE);
-        Mockito.verify(itemRepository, times(1)).getState(anyLong());
-    }
-
-    @Test
     @DisplayName("상품을 수정한다")
     void testUpdateItem() {
 
         when(itemRepository.findByItemNo(ONSALE_ITEM_NO)).thenReturn(Optional.ofNullable(onsaleItem));
         when(itemRepository.findByItemNo(SOLDOUT_ITEM_NO)).thenReturn(Optional.ofNullable(soldoutItem));
         when(itemRepository.findByItemNo(UNSOLD_ITEM_NO)).thenReturn(Optional.ofNullable(unsoldItem));
+        when(itemRepository.findByItemNo(ONSALE_IS_BID_ITEM_NO)).thenReturn(Optional.ofNullable(onsaleIsBidItem));
 
+        //등록자만 상품을 수정할 수 있다.
         assertThrows(ItemException.class,
                 () -> itemService.updateItem(ONSALE_ITEM_NO, NOT_REGISTED_USER_ID, itemRequest), ErrorCode.EDIT_ONLY_REGID.getMessage());
 
@@ -147,6 +157,11 @@ public class ItemServiceTest {
         // 상품 수정
         itemService.updateItem(UNSOLD_ITEM_NO, USER_ID, itemRequest);
 
+        //입찰이 이미 시작된 아이템의 가격은 수정할 수 없다.
+        assertThrows(ItemException.class,
+                () -> itemService.updateItem(ONSALE_IS_BID_ITEM_NO, USER_ID, itemRequest), ErrorCode.CANNOT_UPDATE_BID_ITEM.getMessage());
+
+        //판매 완료된 아이템은 수정할 수 없다.
         assertThrows(ItemException.class,
                 () -> itemService.updateItem(SOLDOUT_ITEM_NO, USER_ID, itemRequest), ErrorCode.CANNOT_UPDATE_SOLDOUT_ITEM.getMessage());
 

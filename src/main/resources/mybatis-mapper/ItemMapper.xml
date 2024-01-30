@@ -19,7 +19,8 @@
                reg_price,
                state,
                reg_id,
-               bet_time
+               bet_time,
+               is_bid
         from Item
         where item_no = #{itemNo}
         ]]>
@@ -47,19 +48,20 @@
         ]]>
     </update>
 
-    <select id="getState">
-     <![CDATA[
-        select state
-        from Item
-        where item_no = #{itemNo}
-        ]]>
-    </select>
-
     <update id="updateState">
     <![CDATA[
         update
             Item
         set state = #{state}
+        where item_no = #{itemNo}
+        ]]>
+    </update>
+
+    <update id="updateIsBid">
+    <![CDATA[
+        update
+            Item
+        set is_bid = #{isBid}
         where item_no = #{itemNo}
         ]]>
     </update>

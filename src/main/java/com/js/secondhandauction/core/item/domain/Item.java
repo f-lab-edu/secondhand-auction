@@ -26,4 +26,5 @@ public class Item {
     private State state;
     private long regId;
     private int betTime;
+    private Boolean isBid;
 }

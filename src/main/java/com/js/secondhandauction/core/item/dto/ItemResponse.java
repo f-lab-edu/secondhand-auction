@@ -15,6 +15,7 @@ public class ItemResponse {
     private String item;
     private int regPrice;
     private State state;
+    private Boolean isBid;
 
     public static ItemResponse of(Item item) {
         return ItemResponse.builder()
@@ -22,6 +23,7 @@ public class ItemResponse {
                 .item(item.getItem())
                 .regPrice(item.getRegPrice())
                 .state(item.getState())
+                .isBid(item.getIsBid())
                 .build();
     }
 }

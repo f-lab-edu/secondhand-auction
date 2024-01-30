@@ -35,6 +35,7 @@ public class ItemService {
         item.setRegId(id);
         item.setState(State.ONSALE);
         item.setBetTime((int) (Math.random() * 16) + 5);
+        item.setIsBid(false);
 
         itemRepository.create(item);
 
@@ -52,18 +53,19 @@ public class ItemService {
     /**
      * 상품수정
      */
-    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
-        isEditableItem(id, itemNo);
+        Item getItem = isEditableItem(id, itemNo);
 
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);
         item.setRegId(id);
+        item.setIsBid(getItem.getIsBid());
 
-        State itemState = getItemState(itemNo);
-
-        switch (itemState) {
+        switch (getItem.getState()) {
             case ONSALE:
+                if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice()) {
+                    throw new ItemException(ErrorCode.CANNOT_UPDATE_BID_ITEM);
+                }
                 item.setState(State.ONSALE);
 
                 itemRepository.updateForOnsale(item);
@@ -80,21 +82,20 @@ public class ItemService {
                 throw new ItemException(ErrorCode.NOT_FOUND_ITEM);
         }
 
-        return ItemResponse.of(item);
-    }
-
-    /**
-     * 상품 상태 확인
-     */
-    public State getItemState(long itemNo) {
-        return itemRepository.getState(itemNo);
+        return ItemResponse.of(evictCache(item));
     }
 
     /**
      * 상품상태 업데이트
      */
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public void updateItemState(long itemNo, State state) {
         itemRepository.updateState(itemNo, state);
+    }
+
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
+    public void updateItemIsBid(long itemNo, Boolean isBid) {
+        itemRepository.updateIsBid(itemNo, isBid);
     }
 
     /**
@@ -113,10 +114,17 @@ public class ItemService {
         });
     }
 
-    private void isEditableItem(long id, long itemNo) {
+    private Item isEditableItem(long id, long itemNo) {
         Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
         if (item.getRegId() != id) {
             throw new ItemException(ErrorCode.EDIT_ONLY_REGID);
         }
+
+        return item;
+    }
+
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
+    public Item evictCache(Item item) {
+        return item;
     }
 }

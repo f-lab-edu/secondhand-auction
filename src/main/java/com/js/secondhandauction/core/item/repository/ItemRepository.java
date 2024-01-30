@@ -19,9 +19,9 @@ public interface ItemRepository {
 
     int updateForUnsold(Item item);
 
-    State getState(long itemNo);
-
     int updateState(long itemNo, State state);
+
+    int updateIsBid(long itemNo, Boolean isBid);
 
     List<ItemExpirationCheck> getStateCheckItems(int addDay);
 }
