@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class ItemResponse {
     private long itemNo;
     private String item;
+    private String itemDesc;
     private int regPrice;
     private State state;
     private Boolean isBid;
@@ -21,6 +22,7 @@ public class ItemResponse {
         return ItemResponse.builder()
                 .itemNo(item.getItemNo())
                 .item(item.getItem())
+                .itemDesc(item.getItemDesc())
                 .regPrice(item.getRegPrice())
                 .state(item.getState())
                 .isBid(item.getIsBid())

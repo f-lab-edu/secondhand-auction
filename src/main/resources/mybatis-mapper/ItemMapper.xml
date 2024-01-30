@@ -4,16 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.js.secondhandauction.core.item.repository.ItemRepository">
-    <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item">
+    <insert id="create" parameterType="com.js.secondhandauction.core.item.domain.Item" useGeneratedKeys="true"
+            keyProperty="itemNo"
+            keyColumn="item_no">
         insert into Item
-            (item, reg_price, state, reg_id, bet_time)
-        values (#{item}, #{regPrice}, #{state}, #{regId}, #{betTime})
+            (item, item_desc, reg_price, state, reg_id, bet_time)
+        values (#{item}, #{itemDesc}, #{regPrice}, #{state}, #{regId}, #{betTime})
     </insert>
 
     <select id="findByItemNo" resultType="com.js.secondhandauction.core.item.domain.Item">
     <![CDATA[
         select item_no,
                item,
+               item_desc,
                reg_date,
                upt_date,
                reg_price,
@@ -31,6 +34,7 @@
         update
             Item
         set item      = #{item}
+          , item_desc = #{itemDesc}
           , reg_price = #{regPrice}
           , state     = #{state}
           , bet_time  = #{betTime}
@@ -43,6 +47,7 @@
         update
             Item
         set item      = #{item}
+          , item_desc = #{itemDesc}
           , reg_price = #{regPrice}
         where item_no = #{itemNo}
         ]]>
