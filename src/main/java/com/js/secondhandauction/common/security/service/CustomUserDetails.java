@@ -15,7 +15,7 @@ import java.util.Collections;
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails, Serializable {
 
-    private long uniqId;
+    private long userNo;
     private String userId;
     @Getter
     private Role role;
@@ -36,7 +36,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public long getId() {
-        return uniqId;
+        return userNo;
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public static CustomUserDetails of(final Member member) {
-        return new CustomUserDetails(member.getUniqId(), member.getUserId(), member.getRole());
+        return new CustomUserDetails(member.getUserNo(), member.getUserId(), member.getRole());
     }
 }

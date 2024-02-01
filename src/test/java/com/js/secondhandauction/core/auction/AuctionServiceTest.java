@@ -56,14 +56,14 @@ public class AuctionServiceTest {
     @BeforeEach
     public void setup() {
         member = MemberGetResponse.builder()
-                .uniqId(MEMBER_ID)
+                .userNo(MEMBER_ID)
                 .userId("Test User")
                 .nickname("Test Name")
                 .totalBalance(10000000)
                 .build();
 
         member2 = MemberGetResponse.builder()
-                .uniqId(MEMBER_ID2)
+                .userNo(MEMBER_ID2)
                 .userId("Test User")
                 .nickname("Test Name")
                 .totalBalance(10000000)
@@ -105,9 +105,9 @@ public class AuctionServiceTest {
 
         auctionRequest = new AuctionRequest(NO_TICK_ITEM_NO, 500000);
 
-        Mockito.when(memberService.getMemberByUniqId(MEMBER_ID)).thenReturn(member);
+        Mockito.when(memberService.getMemberByUserNo(MEMBER_ID)).thenReturn(member);
 
-        Mockito.when(memberService.getMemberByUniqId(MEMBER_ID2)).thenReturn(member2);
+        Mockito.when(memberService.getMemberByUserNo(MEMBER_ID2)).thenReturn(member2);
 
         //정상 입찰
         Mockito.when(auctionRepository.getCountTick(NO_TICK_ITEM_NO)).thenReturn(0);

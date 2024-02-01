@@ -56,11 +56,11 @@ public class MemberService {
     }
 
     /**
-     * 회원 조회 uniqid로
+     * 회원 조회 userNo로
      */
-    @Cacheable(key = "#id", value = "MEMBER_UNIQID")
-    public MemberGetResponse getMemberByUniqId(long id) {
-        Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+    @Cacheable(key = "#id", value = "MEMBER_USERNO")
+    public MemberGetResponse getMemberByUserNo(long id) {
+        Member member = memberRepository.findByUserNo(id).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
     }
 
@@ -81,10 +81,10 @@ public class MemberService {
     }
 
     /**
-     * 회원 가진금액 더하기 uniqId로
+     * 회원 가진금액 더하기 userNo로
      */
-    public void updateMemberTotalBalanceByUniqId(long id, int totalBalance) {
-        Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+    public void updateMemberTotalBalanceByUserNo(long id, int totalBalance) {
+        Member member = memberRepository.findByUserNo(id).orElseThrow(NotFoundMemberException::new);
 
         evictCache(member);
 
@@ -131,7 +131,7 @@ public class MemberService {
     @Caching(
             evict = {
                     @CacheEvict(key = "#member.userId", value = "MEMBER_USERID"),
-                    @CacheEvict(key = "#member.uniqId", value = "MEMBER_UNIQID")
+                    @CacheEvict(key = "#member.userNo", value = "MEMBER_USERNO")
             }
     )
     public void evictCache(Member member) {

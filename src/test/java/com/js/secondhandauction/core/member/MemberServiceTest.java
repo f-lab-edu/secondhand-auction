@@ -105,17 +105,17 @@ public class MemberServiceTest {
     @DisplayName("유저의 자금을 변경한다")
     void testUpdateTotalBalance() {
         //정상 자금 변경
-        when(memberRepository.findByUniqId(10L)).thenReturn(Optional.ofNullable(member));
+        when(memberRepository.findByUserNo(10L)).thenReturn(Optional.ofNullable(member));
 
-        memberService.updateMemberTotalBalanceByUniqId(10L, 500000);
+        memberService.updateMemberTotalBalanceByUserNo(10L, 500000);
 
         Mockito.verify(memberRepository, times(1)).updateTotalBalance(anyString(), anyInt());
 
         //사용자 자금보다 더 큰 금액을 빼려 해 변경에 실패
-        when(memberRepository.findByUniqId(10L)).thenReturn(Optional.ofNullable(member));
+        when(memberRepository.findByUserNo(10L)).thenReturn(Optional.ofNullable(member));
 
         assertThrows(MemberException.class,
-                () -> memberService.updateMemberTotalBalanceByUniqId(10L, -20000000), ErrorCode.CANNOT_TOTALBALANCE_MINUS.getMessage());
+                () -> memberService.updateMemberTotalBalanceByUserNo(10L, -20000000), ErrorCode.CANNOT_TOTALBALANCE_MINUS.getMessage());
 
     }
 
