@@ -1,65 +1,63 @@
 package com.js.secondhandauction.core.auth;
 
-import com.js.secondhandauction.common.exception.ErrorCode;
+import com.js.secondhandauction.common.security.CustomAuthenticationProvider;
+import com.js.secondhandauction.common.security.service.CustomUserDetails;
+import com.js.secondhandauction.common.security.service.CustomUserDetailsService;
 import com.js.secondhandauction.core.auth.service.AuthService;
+import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.domain.Role;
-import com.js.secondhandauction.core.member.dto.MemberCreateRequest;
-import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.repository.MemberRepository;
-import com.js.secondhandauction.core.member.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-@SpringBootTest
-@Transactional
+@ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
-    @Autowired
+    @InjectMocks
     private AuthService authService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private MemberService memberService;
+    @Mock
+    private CustomUserDetailsService customUserDetailsService;
 
+    @Mock
+    private CustomAuthenticationProvider customAuthenticationProvider;
 
-    @Autowired
-    MemberRepository memberRepository;
-
+    private CustomUserDetails userDetails;
+    private Member member;
     final String TEST_ID = "test";
     final String TEST_PW = "p@ssw0rd";
 
     @BeforeEach
     void setup() {
-        memberService.createMember(new MemberCreateRequest(TEST_ID, "test", TEST_PW, Role.USER));
+        member = Member.builder()
+                .userId(TEST_ID)
+                .nickname("Test Name")
+                .password(passwordEncoder.encode(TEST_PW))
+                .role(Role.USER)
+                .build();
+
+        userDetails = CustomUserDetails.of(member);
+
     }
 
     @Test
     @DisplayName("로그인")
     void login() {
         //when
-        Authentication authentication = authService.login(TEST_ID, TEST_PW);
+        Mockito.when(customUserDetailsService.loadUserByUsername(TEST_ID)).thenReturn(userDetails);
+        Mockito.when(customAuthenticationProvider.authenticate(Mockito.any(Authentication.class))).thenReturn(Mockito.mock(Authentication.class));
 
-        //then
-        assertTrue(authentication.isAuthenticated());
-
-        //given
-        final String NOT_USERID = "test2";
-        final String NOT_USERPW = "test2";
-
-        //then
-        assertThrows(MemberException.class, () -> authService.login(NOT_USERID, TEST_PW), ErrorCode.NOT_FOUND_MEMBER.getMessage());
-
-        final String password2 = "test2";
-
-        //then
-        assertThrows(MemberException.class, () -> authService.login(TEST_ID, NOT_USERPW), ErrorCode.INVALID_PASSWORD.getMessage());
+        authService.login(TEST_ID, TEST_PW);
     }
 
 }

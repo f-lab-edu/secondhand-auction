@@ -8,8 +8,8 @@ import com.js.secondhandauction.core.member.dto.MemberGetResponse;
 import com.js.secondhandauction.core.member.exception.NotFoundMemberException;
 import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -17,13 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class MemberService {
 
-    final MemberRepository memberRepository;
+    @Autowired
+    MemberRepository memberRepository;
 
-    final PasswordEncoder passwordEncoder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     /**
      * 회원가입
