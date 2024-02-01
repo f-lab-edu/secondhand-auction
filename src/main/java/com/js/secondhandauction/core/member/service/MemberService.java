@@ -64,6 +64,14 @@ public class MemberService {
         return MemberGetResponse.of(member);
     }
 
+    /**
+     * 로그인을 위한 회원 조회 userid 로
+     */
+    @Cacheable(key = "#userId", value = "MEMBER_LOGIN")
+    public Member getMemberForLogin(String userId) {
+        return memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
+    }
+
 
     /**
      * 회원 가진금액 더하기 UserId 로
