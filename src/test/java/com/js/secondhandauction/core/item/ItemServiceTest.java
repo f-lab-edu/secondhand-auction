@@ -68,12 +68,13 @@ public class ItemServiceTest {
 
     @BeforeEach
     void setup() {
-        itemRequest = new ItemRequest("Test Item", "", 200000);
+        itemRequest = new ItemRequest("Test Item", "", 200000, 100000);
 
         onsaleItem = Item.builder()
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
+                .immediatePrice(1000000)
                 .regId(USER_NO)
                 .state(State.ONSALE)
                 .betTime(10)
@@ -84,6 +85,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(300000)
+                .immediatePrice(1000000)
                 .regId(USER_NO)
                 .state(State.ONSALE)
                 .betTime(10)
@@ -94,6 +96,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
+                .immediatePrice(1000000)
                 .regId(USER_NO)
                 .state(State.SOLDOUT)
                 .betTime(10)
@@ -104,6 +107,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
+                .immediatePrice(1000000)
                 .regId(USER_NO)
                 .state(State.UNSOLD)
                 .betTime(10)
@@ -167,15 +171,16 @@ public class ItemServiceTest {
         itemService.updateItem(ONSALE_ITEM_NO, userDetails, itemRequest);
 
         // 상품 수정
-        itemService.updateItem(UNSOLD_ITEM_NO, userDetails, itemRequest);
+        assertThrows(ItemException.class,
+                () -> itemService.updateItem(UNSOLD_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_ITEM.getMessage());
 
         //입찰이 이미 시작된 아이템의 가격은 수정할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.updateItem(ONSALE_IS_BID_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_BID_ITEM.getMessage());
+                () -> itemService.updateItem(ONSALE_IS_BID_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_ITEM.getMessage());
 
         //판매 완료된 아이템은 수정할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.updateItem(SOLDOUT_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_SOLDOUT_ITEM.getMessage());
+                () -> itemService.updateItem(SOLDOUT_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_ITEM.getMessage());
 
     }
 
@@ -199,11 +204,11 @@ public class ItemServiceTest {
 
         //입찰이 이미 시작된 아이템은 삭제할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.deleteItem(ONSALE_IS_BID_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_BID_ITEM.getMessage());
+                () -> itemService.deleteItem(ONSALE_IS_BID_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_ITEM.getMessage());
 
         //판매 완료된 아이템은 삭제할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.deleteItem(SOLDOUT_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_SOLDOUT_ITEM.getMessage());
+                () -> itemService.deleteItem(SOLDOUT_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_ITEM.getMessage());
     }
 
 }

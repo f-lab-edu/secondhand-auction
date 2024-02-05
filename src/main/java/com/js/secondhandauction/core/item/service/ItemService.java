@@ -66,11 +66,11 @@ public class ItemService {
         item.setState(State.ONSALE);
 
         if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice() && getItem.getImmediatePrice() != item.getImmediatePrice()) {
-            throw new ItemException(ErrorCode.CANNOT_CHANGE_BID_ITEM);
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
 
         if (getItem.getState() == State.UNSOLD) {
-            item.setBetTime(makeItemBettime());
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
 
         itemRepository.update(item);
@@ -116,7 +116,7 @@ public class ItemService {
         validateEditableItem(customUserDetails.getId(), item);
 
         if (item.getIsBid() && item.getState() == State.ONSALE) {
-            throw new ItemException(ErrorCode.CANNOT_CHANGE_BID_ITEM);
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
 
         itemRepository.delete(itemNo);
@@ -128,7 +128,7 @@ public class ItemService {
         }
 
         if (item.getState() == State.SOLDOUT) {
-            throw new ItemException(ErrorCode.CANNOT_CHANGE_SOLDOUT_ITEM);
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
 
     }
@@ -140,6 +140,10 @@ public class ItemService {
      */
     private int makeItemBettime() {
         return (int) (Math.random() * 20) + 30;
+    }
+
+    public boolean isItemExpired(Item item) {
+        return item.getRegDate().plusHours(24L * addDay).isBefore(LocalDateTime.now());
     }
 
     @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
