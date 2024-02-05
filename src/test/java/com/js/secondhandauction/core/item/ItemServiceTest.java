@@ -1,6 +1,7 @@
 package com.js.secondhandauction.core.item;
 
 import com.js.secondhandauction.common.exception.ErrorCode;
+import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.dto.ItemRequest;
@@ -19,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,9 +39,9 @@ public class ItemServiceTest {
 
     private ItemRequest itemRequest;
 
-    private final long USER_ID = 1L;
+    private final long USER_NO = 1L;
 
-    private final long NOT_REGISTED_USER_ID = 2L;
+    private final long NOT_REGISTED_USER_NO = 2L;
 
     private final long NOT_EXIST_ITEM_NO = 2L;
 
@@ -61,6 +61,10 @@ public class ItemServiceTest {
 
     private Item unsoldItem;
 
+    private CustomUserDetails userDetails;
+
+    private CustomUserDetails notUserDetails;
+
 
     @BeforeEach
     void setup() {
@@ -70,7 +74,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
-                .regId(USER_ID)
+                .regId(USER_NO)
                 .state(State.ONSALE)
                 .betTime(10)
                 .isBid(false)
@@ -80,7 +84,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(300000)
-                .regId(USER_ID)
+                .regId(USER_NO)
                 .state(State.ONSALE)
                 .betTime(10)
                 .isBid(true)
@@ -90,7 +94,7 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
-                .regId(USER_ID)
+                .regId(USER_NO)
                 .state(State.SOLDOUT)
                 .betTime(10)
                 .isBid(false)
@@ -100,17 +104,25 @@ public class ItemServiceTest {
                 .itemNo(ONSALE_ITEM_NO)
                 .item("Test Item")
                 .regPrice(200000)
-                .regId(USER_ID)
+                .regId(USER_NO)
                 .state(State.UNSOLD)
                 .betTime(10)
                 .isBid(false)
+                .build();
+
+        userDetails = CustomUserDetails.builder()
+                .userNo(USER_NO)
+                .build();
+
+        notUserDetails = CustomUserDetails.builder()
+                .userNo(NOT_REGISTED_USER_NO)
                 .build();
     }
 
     @Test
     @DisplayName("상품을 생성한다")
     void testCreateItem() {
-        ItemResponse createdItem = itemService.createItem(USER_ID, itemRequest);
+        ItemResponse createdItem = itemService.createItem(userDetails, itemRequest);
 
         assertNotNull(createdItem);
         Assertions.assertThat(State.ONSALE).isEqualTo(createdItem.getState());
@@ -149,21 +161,21 @@ public class ItemServiceTest {
 
         //등록자만 상품을 수정할 수 있다.
         assertThrows(ItemException.class,
-                () -> itemService.updateItem(ONSALE_ITEM_NO, NOT_REGISTED_USER_ID, itemRequest), ErrorCode.EDIT_ONLY_REGID.getMessage());
+                () -> itemService.updateItem(ONSALE_ITEM_NO, notUserDetails, itemRequest), ErrorCode.EDIT_ONLY_REGID.getMessage());
 
         // 상품 수정
-        itemService.updateItem(ONSALE_ITEM_NO, USER_ID, itemRequest);
+        itemService.updateItem(ONSALE_ITEM_NO, userDetails, itemRequest);
 
         // 상품 수정
-        itemService.updateItem(UNSOLD_ITEM_NO, USER_ID, itemRequest);
+        itemService.updateItem(UNSOLD_ITEM_NO, userDetails, itemRequest);
 
         //입찰이 이미 시작된 아이템의 가격은 수정할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.updateItem(ONSALE_IS_BID_ITEM_NO, USER_ID, itemRequest), ErrorCode.CANNOT_UPDATE_BID_ITEM.getMessage());
+                () -> itemService.updateItem(ONSALE_IS_BID_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_BID_ITEM.getMessage());
 
         //판매 완료된 아이템은 수정할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.updateItem(SOLDOUT_ITEM_NO, USER_ID, itemRequest), ErrorCode.CANNOT_UPDATE_SOLDOUT_ITEM.getMessage());
+                () -> itemService.updateItem(SOLDOUT_ITEM_NO, userDetails, itemRequest), ErrorCode.CANNOT_CHANGE_SOLDOUT_ITEM.getMessage());
 
     }
 
@@ -177,21 +189,21 @@ public class ItemServiceTest {
 
         //등록자만 상품을 삭제할 수 있다.
         assertThrows(ItemException.class,
-                () -> itemService.deleteItem(ONSALE_ITEM_NO, NOT_REGISTED_USER_ID), ErrorCode.EDIT_ONLY_REGID.getMessage());
+                () -> itemService.deleteItem(ONSALE_ITEM_NO, notUserDetails), ErrorCode.EDIT_ONLY_REGID.getMessage());
 
         // 상품 삭제
-        itemService.deleteItem(ONSALE_ITEM_NO, USER_ID);
+        itemService.deleteItem(ONSALE_ITEM_NO, userDetails);
 
         // 상품 삭제
-        itemService.deleteItem(UNSOLD_ITEM_NO, USER_ID);
+        itemService.deleteItem(UNSOLD_ITEM_NO, userDetails);
 
         //입찰이 이미 시작된 아이템은 삭제할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.deleteItem(ONSALE_IS_BID_ITEM_NO, USER_ID), ErrorCode.CANNOT_DELETE_BID_ITEM.getMessage());
+                () -> itemService.deleteItem(ONSALE_IS_BID_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_BID_ITEM.getMessage());
 
         //판매 완료된 아이템은 삭제할 수 없다.
         assertThrows(ItemException.class,
-                () -> itemService.deleteItem(SOLDOUT_ITEM_NO, USER_ID), ErrorCode.CANNOT_DELETE_SOLDOUT_ITEM.getMessage());
+                () -> itemService.deleteItem(SOLDOUT_ITEM_NO, userDetails), ErrorCode.CANNOT_CHANGE_SOLDOUT_ITEM.getMessage());
     }
 
 }
