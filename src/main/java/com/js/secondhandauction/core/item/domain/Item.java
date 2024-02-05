@@ -24,6 +24,7 @@ public class Item {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime uptDate;
     private int regPrice;
+    private int immediatePrice;
     private State state;
     private long regId;
     private int betTime;

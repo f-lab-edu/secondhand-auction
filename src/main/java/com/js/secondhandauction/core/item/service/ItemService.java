@@ -65,7 +65,7 @@ public class ItemService {
         item.setIsBid(getItem.getIsBid());
         item.setState(State.ONSALE);
 
-        if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice()) {
+        if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice() && getItem.getImmediatePrice() != item.getImmediatePrice()) {
             throw new ItemException(ErrorCode.CANNOT_CHANGE_BID_ITEM);
         }
 
@@ -73,7 +73,7 @@ public class ItemService {
             item.setBetTime(makeItemBettime());
         }
 
-        itemRepository.updateForUnsold(item);
+        itemRepository.update(item);
 
         return ItemResponse.of(evictCache(item));
     }
