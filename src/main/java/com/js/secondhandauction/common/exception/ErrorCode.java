@@ -21,6 +21,7 @@ public enum ErrorCode {
     NOT_FOUND_ITEM(404, "I001", "존재하지 않는 아이템입니다."),
     CANNOT_CHANGE_ITEM(422, "I003", "아이템을 수정할 수 없습니다."),
     EDIT_ONLY_REGID(422, "I004", "등록자만 변경할 수 있습니다."),
+    CANNOT_BID_EXPIRED(400, "A006", "경매가 종료된 상품입니다."),
 
     //AUCTION
     DUPLICATE_MEMBER_TICK(400, "A001", "같은 회원이 반복입찰할 수 없습니다."),
@@ -28,7 +29,7 @@ public enum ErrorCode {
     CANNOT_BID_MYSELF(400, "A003", "자신의 상품에는 입찰할 수 없습니다."),
     CANNOT_BETTING_OVER_MAXTIMES(400, "A004", "최대 입찰 횟수를 초과하였습니다."),
     CAN_BID_ONLY_ONSALE(400, "A005", "판매중인 상품만 입찰할 수 있습니다."),
-    CANNOT_OVER_IMMEDIATEPRICE(400, "A006", "즉시 구매가보다 높은 금액으로 입찰할 수 없습니다.");
+    CANNOT_OVER_IMMEDIATEPRICE(400, "A007", "즉시 구매가보다 높은 금액으로 입찰할 수 없습니다.");
 
     private final int status;
     private final String code;
