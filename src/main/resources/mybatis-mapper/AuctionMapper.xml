@@ -13,7 +13,7 @@
         ]]>
     </insert>
 
-    <select id="getLastTick">
+    <select id="getLastBid">
     <![CDATA[
         SELECT item_no,
                bid,
@@ -24,9 +24,18 @@
         ]]>
     </select>
 
-    <select id="getCountTick">
+    <select id="getUserBidCount">
         <![CDATA[
         select count(*)
+        from Auction
+        where item_no = #{itemNo}
+          and reg_id = #{regId}
+        ]]>
+    </select>
+
+    <select id="getTotalBidCount">
+        <![CDATA[
+        select count(*) as totalBidCount
         from Auction
         where item_no = #{itemNo}
         ]]>

@@ -1,6 +1,7 @@
 package com.js.secondhandauction.core.item.service;
 
 import com.js.secondhandauction.common.exception.ErrorCode;
+import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.item.dto.ItemRequest;
@@ -29,12 +30,12 @@ public class ItemService {
     /**
      * 상품등록
      */
-    public ItemResponse createItem(long id, ItemRequest itemRequest) {
+    public ItemResponse createItem(CustomUserDetails customUserDetails, ItemRequest itemRequest) {
         Item item = itemRequest.toEntity();
 
-        item.setRegId(id);
+        item.setRegId(customUserDetails.getId());
         item.setState(State.ONSALE);
-        item.setBetTime((int) (Math.random() * 16) + 5);
+        item.setBetTime(makeItemBettime());
         item.setIsBid(false);
 
         itemRepository.create(item);
@@ -53,34 +54,26 @@ public class ItemService {
     /**
      * 상품수정
      */
-    public ItemResponse updateItem(long itemNo, long id, ItemRequest itemRequest) {
-        Item getItem = isEditableItem(id, itemNo);
+    public ItemResponse updateItem(long itemNo, CustomUserDetails customUserDetails, ItemRequest itemRequest) {
+        Item getItem = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
+
+        validateEditableItem(customUserDetails.getId(), getItem);
 
         Item item = itemRequest.toEntity();
         item.setItemNo(itemNo);
-        item.setRegId(id);
+        item.setRegId(customUserDetails.getId());
         item.setIsBid(getItem.getIsBid());
+        item.setState(State.ONSALE);
 
-        switch (getItem.getState()) {
-            case ONSALE:
-                if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice()) {
-                    throw new ItemException(ErrorCode.CANNOT_UPDATE_BID_ITEM);
-                }
-                item.setState(State.ONSALE);
-
-                itemRepository.updateForOnsale(item);
-                break;
-            case UNSOLD:
-                item.setState(State.ONSALE);
-                item.setBetTime((int) (Math.random() * 16) + 5);
-
-                itemRepository.updateForUnsold(item);
-                break;
-            case SOLDOUT:
-                throw new ItemException(ErrorCode.CANNOT_UPDATE_SOLDOUT_ITEM);
-            default:
-                throw new ItemException(ErrorCode.NOT_FOUND_ITEM);
+        if (getItem.getIsBid() && getItem.getRegPrice() != item.getRegPrice() && getItem.getImmediatePrice() != item.getImmediatePrice()) {
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
+
+        if (getItem.getState() == State.UNSOLD) {
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
+        }
+
+        itemRepository.update(item);
 
         return ItemResponse.of(evictCache(item));
     }
@@ -117,27 +110,40 @@ public class ItemService {
     /**
      * 상품삭제
      */
-    public void deleteItem(long itemNo, long id) {
-        Item item = isEditableItem(id, itemNo);
+    public void deleteItem(long itemNo, CustomUserDetails customUserDetails) {
+        Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
 
-        if (item.getState() == State.SOLDOUT) {
-            throw new ItemException(ErrorCode.CANNOT_DELETE_SOLDOUT_ITEM);
-        }
+        validateEditableItem(customUserDetails.getId(), item);
 
         if (item.getIsBid() && item.getState() == State.ONSALE) {
-            throw new ItemException(ErrorCode.CANNOT_DELETE_BID_ITEM);
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
         }
 
         itemRepository.delete(itemNo);
     }
 
-    private Item isEditableItem(long id, long itemNo) {
-        Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
+    private void validateEditableItem(long id, Item item) {
         if (item.getRegId() != id) {
             throw new ItemException(ErrorCode.EDIT_ONLY_REGID);
         }
 
-        return item;
+        if (item.getState() == State.SOLDOUT) {
+            throw new ItemException(ErrorCode.CANNOT_CHANGE_ITEM);
+        }
+
+    }
+
+    /**
+     * 상품 입찰 횟수 생성
+     *
+     * @return 20 ~ 50 사이 숫자
+     */
+    private int makeItemBettime() {
+        return (int) (Math.random() * 20) + 30;
+    }
+
+    public boolean isItemExpired(Item item) {
+        return item.getRegDate().plusHours(24L * addDay).isBefore(LocalDateTime.now());
     }
 
     @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")

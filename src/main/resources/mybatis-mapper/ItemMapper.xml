@@ -8,8 +8,8 @@
             keyProperty="itemNo"
             keyColumn="item_no">
         insert into Item
-            (item, item_desc, reg_price, state, reg_id, bet_time)
-        values (#{item}, #{itemDesc}, #{regPrice}, #{state}, #{regId}, #{betTime})
+            (item, item_desc, reg_price, immediate_price, state, reg_id, bet_time)
+        values (#{item}, #{itemDesc}, #{regPrice}, #{immediatePrice}, #{state}, #{regId}, #{betTime})
     </insert>
 
     <select id="findByItemNo" resultType="com.js.secondhandauction.core.item.domain.Item">
@@ -20,6 +20,7 @@
                reg_date,
                upt_date,
                reg_price,
+               immediate_price,
                state,
                reg_id,
                bet_time,
@@ -30,27 +31,16 @@
         ]]>
     </select>
 
-    <update id="updateForUnsold" parameterType="com.js.secondhandauction.core.item.domain.Item">
+    <update id="update" parameterType="com.js.secondhandauction.core.item.domain.Item">
     <![CDATA[
         update
             Item
-        set item      = #{item}
-          , item_desc = #{itemDesc}
-          , reg_price = #{regPrice}
-          , state     = #{state}
-          , bet_time  = #{betTime}
-        where item_no = #{itemNo}
-          and is_del = 0
-        ]]>
-    </update>
-
-    <update id="updateForOnsale" parameterType="com.js.secondhandauction.core.item.domain.Item">
-    <![CDATA[
-        update
-            Item
-        set item      = #{item}
-          , item_desc = #{itemDesc}
-          , reg_price = #{regPrice}
+        set item            = #{item}
+          , item_desc       = #{itemDesc}
+          , reg_price       = #{regPrice}
+          , immediate_price = #{immediatePrice}
+          , state           = #{state}
+          , bet_time        = #{betTime}
         where item_no = #{itemNo}
           and is_del = 0
         ]]>

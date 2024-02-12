@@ -15,9 +15,7 @@ public interface ItemRepository {
 
     Optional<Item> findByItemNo(long itemNo);
 
-    int updateForOnsale(Item item);
-
-    int updateForUnsold(Item item);
+    int update(Item item);
 
     int updateState(long itemNo, State state);
 

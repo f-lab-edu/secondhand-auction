@@ -6,7 +6,6 @@ import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.dto.ItemRequest;
 import com.js.secondhandauction.core.item.dto.ItemResponse;
 import com.js.secondhandauction.core.item.service.ItemService;
-import com.js.secondhandauction.core.member.domain.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +23,7 @@ public class ItemController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<ItemResponse>> createItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody ItemRequest itemRequest) {
-        final long id = customUserDetails.getId();
-        return new ResponseEntity<>(ApiResponse.success(itemService.createItem(id, itemRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success(itemService.createItem(customUserDetails, itemRequest)), HttpStatus.CREATED);
     }
 
     /**
@@ -41,8 +39,7 @@ public class ItemController {
      */
     @PutMapping("/{itemNo}")
     public ResponseEntity<ApiResponse<ItemResponse>> updateItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable long itemNo, @RequestBody ItemRequest itemRequest) {
-        final long id = customUserDetails.getId();
-        return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, id, itemRequest)), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success(itemService.updateItem(itemNo, customUserDetails, itemRequest)), HttpStatus.OK);
     }
 
     /**
@@ -50,8 +47,7 @@ public class ItemController {
      */
     @DeleteMapping("/{itemNo}")
     public ResponseEntity<ApiResponse<Void>> deleteItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable long itemNo) {
-        final long id = customUserDetails.getId();
-        itemService.deleteItem(itemNo, id);
+        itemService.deleteItem(itemNo, customUserDetails);
         return new ResponseEntity<>(ApiResponse.success(null), HttpStatus.NO_CONTENT);
     }
 

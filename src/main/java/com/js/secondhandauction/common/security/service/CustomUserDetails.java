@@ -3,6 +3,7 @@ package com.js.secondhandauction.common.security.service;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.domain.Role;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @AllArgsConstructor
+@Builder
 public class CustomUserDetails implements UserDetails, Serializable {
 
     private long userNo;
