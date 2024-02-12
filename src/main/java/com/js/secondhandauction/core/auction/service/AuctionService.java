@@ -83,7 +83,7 @@ public class AuctionService {
     }
 
     private void validateUser(long id, Auction auction) {
-        int userTotalBalance = memberService.getMemberByUniqId(id).getTotalBalance();
+        int userTotalBalance = memberService.getMemberByUserNo(id).getTotalBalance();
         if (userTotalBalance < auction.getBid()) {
             throw new MemberException(ErrorCode.CANNOT_TOTALBALANCE_MINUS);
         }
@@ -136,10 +136,10 @@ public class AuctionService {
 
 
     private void updateUserBalanceAndCreateAuction(Auction auction, Auction lastTick) {
-        memberService.updateMemberTotalBalanceByUniqId(auction.getRegId(), auction.getBid() * -1);
+        memberService.updateMemberTotalBalanceByUserNo(auction.getRegId(), auction.getBid() * -1);
 
         if (lastTick != null) {
-            memberService.updateMemberTotalBalanceByUniqId(lastTick.getRegId(), lastTick.getBid());
+            memberService.updateMemberTotalBalanceByUserNo(lastTick.getRegId(), lastTick.getBid());
         } else {
             itemService.updateItemIsBid(auction.getItemNo(), true);
         }
@@ -152,7 +152,7 @@ public class AuctionService {
     }
 
     private void finishAuction(Auction auction, Item item) {
-        memberService.updateMemberTotalBalanceByUniqId(item.getRegId(), auction.getBid());
+        memberService.updateMemberTotalBalanceByUserNo(item.getRegId(), auction.getBid());
 
         itemService.updateItemState(item.getItemNo(), State.SOLDOUT);
 

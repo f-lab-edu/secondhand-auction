@@ -15,20 +15,19 @@ import java.util.Collections;
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails, Serializable {
 
-    private long uniqId;
+    private long userNo;
     private String userId;
-    private String password;
     @Getter
     private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
+        return Collections.singleton(new SimpleGrantedAuthority(role.toString()));
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override
@@ -37,7 +36,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public long getId() {
-        return uniqId;
+        return userNo;
     }
 
     @Override
@@ -61,6 +60,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public static CustomUserDetails of(final Member member) {
-        return new CustomUserDetails(member.getUniqId(), member.getUserId(), member.getPassword(), member.getRole());
+        return new CustomUserDetails(member.getUserNo(), member.getUserId(), member.getRole());
     }
 }

@@ -8,8 +8,8 @@ import com.js.secondhandauction.core.member.dto.MemberGetResponse;
 import com.js.secondhandauction.core.member.exception.NotFoundMemberException;
 import com.js.secondhandauction.core.member.exception.MemberException;
 import com.js.secondhandauction.core.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -17,13 +17,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class MemberService {
 
-    final MemberRepository memberRepository;
+    @Autowired
+    MemberRepository memberRepository;
 
-    final PasswordEncoder passwordEncoder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     /**
      * 회원가입
@@ -55,12 +56,20 @@ public class MemberService {
     }
 
     /**
-     * 회원 조회 uniqid로
+     * 회원 조회 userNo로
      */
-    @Cacheable(key = "#id", value = "MEMBER_UNIQID")
-    public MemberGetResponse getMemberByUniqId(long id) {
-        Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+    @Cacheable(key = "#id", value = "MEMBER_USERNO")
+    public MemberGetResponse getMemberByUserNo(long id) {
+        Member member = memberRepository.findByUserNo(id).orElseThrow(NotFoundMemberException::new);
         return MemberGetResponse.of(member);
+    }
+
+    /**
+     * 로그인을 위한 회원 조회 userid 로
+     */
+    @Cacheable(key = "#userId", value = "MEMBER_LOGIN")
+    public Member getMemberForLogin(String userId) {
+        return memberRepository.findByUserId(userId).orElseThrow(NotFoundMemberException::new);
     }
 
 
@@ -80,10 +89,10 @@ public class MemberService {
     }
 
     /**
-     * 회원 가진금액 더하기 uniqId로
+     * 회원 가진금액 더하기 userNo로
      */
-    public void updateMemberTotalBalanceByUniqId(long id, int totalBalance) {
-        Member member = memberRepository.findByUniqId(id).orElseThrow(NotFoundMemberException::new);
+    public void updateMemberTotalBalanceByUserNo(long id, int totalBalance) {
+        Member member = memberRepository.findByUserNo(id).orElseThrow(NotFoundMemberException::new);
 
         evictCache(member);
 
@@ -130,7 +139,7 @@ public class MemberService {
     @Caching(
             evict = {
                     @CacheEvict(key = "#member.userId", value = "MEMBER_USERID"),
-                    @CacheEvict(key = "#member.uniqId", value = "MEMBER_UNIQID")
+                    @CacheEvict(key = "#member.userNo", value = "MEMBER_USERNO")
             }
     )
     public void evictCache(Member member) {

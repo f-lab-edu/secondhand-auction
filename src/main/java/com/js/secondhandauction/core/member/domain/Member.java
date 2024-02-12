@@ -20,7 +20,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
-    private long uniqId;
+    private long userNo;
     private String userId;
     private String password;
     private String nickname;

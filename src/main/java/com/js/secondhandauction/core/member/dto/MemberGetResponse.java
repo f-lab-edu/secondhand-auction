@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberGetResponse implements Serializable {
-    private long uniqId;
+    private long userNo;
     private String userId;
     private String nickname;
     private int totalBalance;
@@ -32,7 +32,7 @@ public class MemberGetResponse implements Serializable {
 
     public static MemberGetResponse of(Member member) {
         return MemberGetResponse.builder()
-                .uniqId(member.getUniqId())
+                .userNo(member.getUserNo())
                 .userId(member.getUserId())
                 .nickname(member.getNickname())
                 .totalBalance(member.getTotalBalance())

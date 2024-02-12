@@ -5,17 +5,17 @@
 
 <mapper namespace="com.js.secondhandauction.core.member.repository.MemberRepository">
     <insert id="create" parameterType="com.js.secondhandauction.core.member.domain.Member" useGeneratedKeys="true"
-            keyProperty="uniqId" keyColumn="uniqId">
+            keyProperty="userNo" keyColumn="userNo">
     <![CDATA[
         insert into Member
-            (uniq_id, user_id, nickname, password, total_balance, role)
-        values (#{uniqId}, #{userId}, #{nickname}, #{password}, #{totalBalance}, #{role})
+            (user_id, nickname, password, total_balance, role)
+        values (#{userId}, #{nickname}, #{password}, #{totalBalance}, #{role})
         ]]>
     </insert>
 
     <select id="findByUserId">
     <![CDATA[
-        select uniq_id,
+        select user_no,
                user_id,
                password,
                nickname,
@@ -28,9 +28,9 @@
         ]]>
     </select>
 
-    <select id="findByUniqId">
+    <select id="findByUserNo">
     <![CDATA[
-        select uniq_id,
+        select user_no,
                user_id,
                password,
                nickname,
@@ -39,7 +39,7 @@
                upt_date,
                role
         from Member
-        where uniq_id = #{uniqId}
+        where user_no = #{userNo}
         ]]>
     </select>
 
