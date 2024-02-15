@@ -52,4 +52,12 @@
         where item_no = #{itemNo}
         ]]>
     </select>
+
+    <select id="findParticipantsByItemNo">
+        <![CDATA[
+        select distinct reg_id
+        from Auction
+        where item_no = #{itemNo}
+        ]]>
+    </select>
 </mapper>

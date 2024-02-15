@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.js.secondhandauction.core.message.repository.MessageRepository">
+    <insert id="sendMessage">
+    <![CDATA[
+        insert into Message
+            (user_no, message_content)
+        values (#{userNo}, #{messageContent})
+        ]]>
+    </insert>
+
+    <select id="getMessages">
+    <![CDATA[
+        select message_content
+        from Message
+        where user_no = #{userNo}
+        ]]>
+    </select>
+</mapper>

@@ -2,6 +2,7 @@ package com.js.secondhandauction.core.auction.repository;
 
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionLastBidResponse;
+import com.js.secondhandauction.core.auction.dto.AuctionParticipantsResponse;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface AuctionRepository {
     int getTotalBidCount(long itemNo);
 
     List<Auction> findByItemNo(long itemNo);
+
+    List<AuctionParticipantsResponse> findParticipantsByItemNo(long itemNo);
 }
