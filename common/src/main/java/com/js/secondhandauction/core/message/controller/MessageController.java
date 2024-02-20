@@ -2,11 +2,9 @@ package com.js.secondhandauction.core.message.controller;
 
 import com.js.secondhandauction.common.response.ApiResponse;
 import com.js.secondhandauction.common.security.service.CustomUserDetails;
-import com.js.secondhandauction.core.message.dto.MessageRequest;
 import com.js.secondhandauction.core.message.dto.MessageResponse;
 import com.js.secondhandauction.core.message.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

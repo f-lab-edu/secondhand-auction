@@ -6,7 +6,6 @@ import com.js.secondhandauction.common.security.service.CustomUserDetailsService
 import com.js.secondhandauction.core.auth.service.AuthService;
 import com.js.secondhandauction.core.member.domain.Member;
 import com.js.secondhandauction.core.member.domain.Role;
-import com.js.secondhandauction.core.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,13 +32,12 @@ public class AuthServiceTest {
     private CustomAuthenticationProvider customAuthenticationProvider;
 
     private CustomUserDetails userDetails;
-    private Member member;
     final String TEST_ID = "test";
     final String TEST_PW = "p@ssw0rd";
 
     @BeforeEach
     void setup() {
-        member = Member.builder()
+        Member member = Member.builder()
                 .userId(TEST_ID)
                 .nickname("Test Name")
                 .password(passwordEncoder.encode(TEST_PW))

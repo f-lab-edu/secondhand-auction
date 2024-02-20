@@ -4,7 +4,6 @@ import com.js.secondhandauction.core.auction.domain.Auction;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 
 @Getter
 @Builder

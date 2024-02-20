@@ -13,7 +13,7 @@ public class AmazonSQSSender {
     @Autowired
     private SqsTemplate sqsTemplate;
 
-    private String queueName = "sha-message-queue";
+    private final String queueName = "sha-message-queue";
 
     public AmazonSQSSender(SqsTemplate sqsTemplate) {
         this.sqsTemplate = sqsTemplate;

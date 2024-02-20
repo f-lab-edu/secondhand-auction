@@ -146,7 +146,7 @@ public class ItemService {
         return item.getRegDate().plusHours(24L * addDay).isBefore(LocalDateTime.now());
     }
 
-    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
+    @CacheEvict(key = "#item.itemNo", value = "ITEM_ITEMNO")
     public Item evictCache(Item item) {
         return item;
     }

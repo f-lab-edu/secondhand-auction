@@ -1,8 +1,6 @@
 package com.js.secondhandauction.core.message.service;
 
 import com.js.secondhandauction.core.auction.dto.AuctionParticipantsResponse;
-import com.js.secondhandauction.core.item.domain.State;
-import com.js.secondhandauction.core.message.dto.MessageRequest;
 import com.js.secondhandauction.core.message.dto.MessageResponse;
 import com.js.secondhandauction.core.message.repository.MessageRepository;
 import lombok.extern.slf4j.Slf4j;
