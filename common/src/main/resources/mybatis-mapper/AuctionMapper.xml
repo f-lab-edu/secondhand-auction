@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.js.secondhandauction.core.auction.repository.AuctionRepository">
+    <insert id="create" parameterType="com.js.secondhandauction.core.auction.domain.Auction" useGeneratedKeys="true"
+            keyProperty="auctionNo" keyColumn="auction_no">
+    <![CDATA[
+        insert into Auction
+            (item_no, bid, reg_id)
+        values (#{itemNo}, #{bid}, #{regId})
+        ]]>
+    </insert>
+
+    <select id="getLastBid">
+    <![CDATA[
+        SELECT item_no,
+               bid,
+               reg_id
+        FROM Auction
+        WHERE item_no = #{itemNo}
+          AND bid = (SELECT MAX(bid) FROM Auction WHERE item_no = #{itemNo})
+        ]]>
+    </select>
+
+    <select id="getUserBidCount">
+        <![CDATA[
+        select count(*)
+        from Auction
+        where item_no = #{itemNo}
+          and reg_id = #{regId}
+        ]]>
+    </select>
+
+    <select id="getTotalBidCount">
+        <![CDATA[
+        select count(*) as totalBidCount
+        from Auction
+        where item_no = #{itemNo}
+        ]]>
+    </select>
+
+    <select id="findByItemNo">
+        <![CDATA[
+        select auction_no,
+               item_no,
+               bid,
+               reg_id,
+               reg_date
+        from Auction
+        where item_no = #{itemNo}
+        ]]>
+    </select>
+
+    <select id="findParticipantsByItemNo">
+        <![CDATA[
+        select distinct reg_id
+        from Auction
+        where item_no = #{itemNo}
+        ]]>
+    </select>
+</mapper>
