@@ -1,1 +1,5 @@
 rootProject.name = 'secondhandauction'
+
+include 'common'
+include 'listener'
+include 'sender'

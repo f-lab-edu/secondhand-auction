@@ -1,0 +1,12 @@
+bootJar {
+    enabled = true
+}
+jar {
+    enabled = false
+}
+
+dependencies {
+    implementation project(':common')
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
+}
