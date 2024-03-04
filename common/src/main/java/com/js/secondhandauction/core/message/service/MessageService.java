@@ -24,7 +24,7 @@ public class MessageService {
     public void sendMessage(List<AuctionParticipantsResponse> participants, String message) {
 
         for (AuctionParticipantsResponse participant : participants) {
-            messageRepository.sendMessage(participant.getRegId(), message);
+            messageRepository.sendMessage(participant.getUserNo(), message);
         }
 
     }

@@ -48,6 +48,15 @@ public class MemberController {
     }
 
     /**
+     * 자기 자신 조회
+     */
+    @GetMapping("/members/me")
+    public ResponseEntity<ApiResponse<MemberGetResponse>> getMyInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return new ResponseEntity<>(ApiResponse.success(memberService.getMemberByUserNo(customUserDetails.getId())), HttpStatus.OK);
+    }
+
+
+    /**
      * 회원 잔액 추가
      */
     @PatchMapping("/members/{userId}/totalBalance")

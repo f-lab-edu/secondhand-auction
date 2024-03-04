@@ -1,5 +1,6 @@
 rootProject.name = 'secondhandauction'
 
 include 'common'
-include 'listener'
-include 'sender'
+include 'main'
+include 'notificationBroker'
+include 'notificationSender'
