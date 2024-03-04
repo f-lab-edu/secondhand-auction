@@ -1,6 +1,5 @@
 package com.js.secondhandauction.sender.sqs;
 
-import com.js.secondhandauction.core.message.dto.MessageSendRequest;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

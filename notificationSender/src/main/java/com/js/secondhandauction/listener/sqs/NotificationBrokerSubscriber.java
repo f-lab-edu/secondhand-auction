@@ -15,7 +15,6 @@ import reactor.core.publisher.Sinks;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 import java.time.Duration;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -57,7 +56,7 @@ public class NotificationBrokerSubscriber {
                 webSocketHandler.getSink(userNo).emitNext(messageText, Sinks.EmitFailureHandler.FAIL_FAST);
             }
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error(String.valueOf(e));
         }
 
     }
