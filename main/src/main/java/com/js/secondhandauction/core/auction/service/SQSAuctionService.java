@@ -1,17 +1,14 @@
 package com.js.secondhandauction.core.auction.service;
 
 import com.js.secondhandauction.core.auction.domain.Auction;
-import com.js.secondhandauction.core.auction.dto.*;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.message.dto.MessageRequest;
-import com.js.secondhandauction.sender.sqs.AmazonSQSSender;
+import com.js.secondhandauction.sender.sqs.NotificationBrokerSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Primary
@@ -19,13 +16,10 @@ import java.util.List;
 public class SQSAuctionService extends AuctionService {
 
     @Autowired
-    AmazonSQSSender amazonSQSSender;
+    NotificationBrokerSender notificationBrokerSender;
 
     protected MessageRequest getMessageRequest(Auction auction, Item item) {
-        List<AuctionParticipantsResponse> participantsResponseList = super.getAuctionParticipants(auction.getItemNo());
-
         MessageRequest messageRequest = MessageRequest.builder()
-                .participants(participantsResponseList)
                 .auction(auction)
                 .item(item)
                 .build();
@@ -48,7 +42,7 @@ public class SQSAuctionService extends AuctionService {
     protected void finishAuction(Auction auction, Item item) {
         super.finishAuction(auction, item);
 
-        amazonSQSSender.sendInbox(getMessageRequest(auction, item));
+        notificationBrokerSender.makeNotification(getMessageRequest(auction, item));
     }
 
 }

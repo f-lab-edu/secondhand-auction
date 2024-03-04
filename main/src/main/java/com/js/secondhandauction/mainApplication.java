@@ -8,10 +8,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableCaching // 캐시 사용을 위한 어노테이션
-public class SecondhandauctionApplication {
+public class mainApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SecondhandauctionApplication.class, args);
+        SpringApplication.run(mainApplication.class, args);
     }
 
 }

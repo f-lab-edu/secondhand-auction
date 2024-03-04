@@ -2,9 +2,9 @@ package com.js.secondhandauction.core.auction;
 
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.common.security.service.CustomUserDetails;
+import com.js.secondhandauction.core.auction.dto.AuctionLastBidResponse;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
-import com.js.secondhandauction.core.auction.dto.AuctionLastBidResponse;
 import com.js.secondhandauction.core.auction.exception.AuctionException;
 import com.js.secondhandauction.core.auction.repository.AuctionRepository;
 import com.js.secondhandauction.core.auction.service.AuctionFinalizeFailureService;
