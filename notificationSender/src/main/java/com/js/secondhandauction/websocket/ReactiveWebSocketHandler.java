@@ -1,5 +1,6 @@
 package com.js.secondhandauction.websocket;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -19,19 +20,24 @@ public class ReactiveWebSocketHandler implements WebSocketHandler {
 
 
     @Override
+    @NonNull
     public Mono<Void> handle(WebSocketSession session) {
         log.info("Session Opened");
 
-        return session.receive()
+        session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
-                .doOnNext(userno -> {
-                    Sinks.Many<String> sink = sinkMap.computeIfAbsent(userno, k -> Sinks.many().multicast().directBestEffort());
-                    session.send(sink.asFlux().map(session::textMessage)).subscribe();
-                })
-                .then();
+                .flatMap(userNo -> {
+                    sinkMap.computeIfAbsent(userNo, k -> {
+                        Sinks.Many<String> newSink = Sinks.many().multicast().directBestEffort();
+                        session.send(newSink.asFlux().map(session::textMessage)).subscribe();
+                        return newSink;
+                    });
+                    return Mono.empty();
+                });
+        return Mono.empty();
     }
 
-    public Sinks.Many<String> getSink(String userno) {
-        return sinkMap.get(userno);
+    public Sinks.Many<String> getSink(String userNo) {
+        return sinkMap.get(userNo);
     }
 }
