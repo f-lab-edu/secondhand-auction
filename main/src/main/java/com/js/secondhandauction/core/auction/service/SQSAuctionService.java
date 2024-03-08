@@ -18,13 +18,13 @@ public class SQSAuctionService extends AuctionService {
     @Autowired
     NotificationBrokerSender notificationBrokerSender;
 
-    protected MessageRequest getMessageRequest(Auction auction, Item item) {
+    protected MessageRequest getMessageRequest(Auction auction, Item item, boolean isImmediatePurchase, int bidCount) {
         MessageRequest messageRequest = MessageRequest.builder()
                 .auction(auction)
                 .item(item)
                 .build();
 
-        if (super.isFinalBid(item)) {
+        if (super.isFinalBid(item, isImmediatePurchase, bidCount)) {
             log.info("경매 종료 메시지 전송");
             messageRequest.setState(State.SOLDOUT);
         } else {
@@ -39,10 +39,10 @@ public class SQSAuctionService extends AuctionService {
      * 경매 종료
      */
     @Override
-    protected void finishAuction(Auction auction, Item item) {
-        super.finishAuction(auction, item);
+    protected void finishAuction(Auction auction, Item item, boolean isImmediatePurchase, int bidCount) {
+        super.finishAuction(auction, item, isImmediatePurchase, bidCount);
 
-        notificationBrokerSender.makeNotification(getMessageRequest(auction, item));
+        notificationBrokerSender.makeNotification(getMessageRequest(auction, item, isImmediatePurchase, bidCount));
     }
 
 }

@@ -6,6 +6,7 @@ import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.AuctionImmediatePurchaseRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
+import com.js.secondhandauction.core.auction.service.AuctionRedissonLockService;
 import com.js.secondhandauction.core.auction.service.AuctionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +28,9 @@ public class AuctionController {
     @Autowired
     private AuctionService auctionService;
 
+    @Autowired
+    private AuctionRedissonLockService auctionRedissonLockService;
+
     @PostMapping
     @Operation(summary = "경매 등록", description = "경매를 등록합니다.")
     @ApiResponses(value = {
@@ -37,7 +41,7 @@ public class AuctionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "기타사항", content = @Content),
     })
     public ResponseEntity<ApiResponse<AuctionResponse>> createAuction(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody AuctionRequest auctionRequest) {
-        return new ResponseEntity<>(ApiResponse.success(auctionService.createAuction(customUserDetails, auctionRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success(auctionRedissonLockService.createAuctionWithLock(auctionRequest.toEntity(customUserDetails), false)), HttpStatus.CREATED);
     }
 
     @PostMapping("/immediate-purchase")
@@ -50,7 +54,7 @@ public class AuctionController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "기타사항", content = @Content),
     })
     public ResponseEntity<ApiResponse<AuctionResponse>> immediatePurchaseItem(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody AuctionImmediatePurchaseRequest auctionImmediatePurchaseRequest) {
-        return new ResponseEntity<>(ApiResponse.success(auctionService.createImmediateAuction(customUserDetails, auctionImmediatePurchaseRequest)), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success(auctionRedissonLockService.createAuctionWithLock(auctionImmediatePurchaseRequest.toAuctionRequest().toEntity(customUserDetails), false)), HttpStatus.CREATED);
     }
 
     @GetMapping("/{itemNo}")
