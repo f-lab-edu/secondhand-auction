@@ -1,4 +1,4 @@
-package com.js.secondhandauction.listener.sqs;
+package com.js.secondhandauction.subscriber.sqs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.message.dto.MessageRequest;
 import com.js.secondhandauction.core.message.dto.MessageSendRequest;
 import com.js.secondhandauction.core.message.service.MessageService;
-import com.js.secondhandauction.sender.sqs.NotificationSender;
+import com.js.secondhandauction.publisher.sqs.NotificationSender;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import io.awspring.cloud.sqs.listener.acknowledgement.handler.AcknowledgementMode;
@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 @Component
 @Slf4j
-public class NotificationSubscriber {
+public class MessageSubscriber {
 
     @Autowired
     private MessageService messageService;
@@ -55,7 +55,7 @@ public class NotificationSubscriber {
 
 
     @SqsListener(queueNames = "sha-message-queue")
-    public void notificationRequestSubscriber(MessageRequest messageRequest) throws JsonProcessingException {
+    public void consumeMessageAndPublishNotificationInfo(MessageRequest messageRequest) throws JsonProcessingException {
         log.info("Listening to SQS InBox: " + messageRequest);
 
         List<AuctionParticipantsResponse> participants = auctionService.getAuctionParticipants(messageRequest.getAuction().getItemNo());
@@ -94,7 +94,7 @@ public class NotificationSubscriber {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(messageSendRequest);
 
-        notificationSender.sendNotification(jsonString);
+        notificationSender.publishNotficationInfo(jsonString);
 
 
     }

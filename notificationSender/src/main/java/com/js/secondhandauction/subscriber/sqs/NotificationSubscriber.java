@@ -1,4 +1,4 @@
-package com.js.secondhandauction.listener.sqs;
+package com.js.secondhandauction.subscriber.sqs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +18,7 @@ import java.time.Duration;
 
 @Component
 @Slf4j
-public class NotificationBrokerSubscriber {
+public class NotificationSubscriber {
 
     @Autowired
     private ReactiveWebSocketHandler webSocketHandler;
@@ -40,7 +40,7 @@ public class NotificationBrokerSubscriber {
     }
 
     @SqsListener(queueNames = "sha-message-send-queue")
-    public void sendNotification(String info) {
+    public void consumeNotification(String info) {
         log.info("Listening to SQS InBox: " + info);
         ObjectMapper mapper = new ObjectMapper();
         try {

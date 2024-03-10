@@ -1,4 +1,4 @@
-package com.js.secondhandauction.sender.sqs;
+package com.js.secondhandauction.publisher.sqs;
 
 import com.js.secondhandauction.core.message.dto.MessageRequest;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class NotificationBrokerSender {
+public class MessagePublisher {
     @Autowired
     private SqsTemplate sqsTemplate;
 
     private final String queueName = "sha-message-queue";
 
-    public void makeNotification(MessageRequest messageRequest) {
+    public void publishMessage(MessageRequest messageRequest) {
         log.info("Sending message to SQS test InBox: {}", messageRequest);
         sqsTemplate.send(to -> to
                 .queue(queueName)

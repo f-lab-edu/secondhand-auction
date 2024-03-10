@@ -4,7 +4,7 @@ import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
 import com.js.secondhandauction.core.message.dto.MessageRequest;
-import com.js.secondhandauction.sender.sqs.NotificationBrokerSender;
+import com.js.secondhandauction.publisher.sqs.MessagePublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 @Primary
 @Slf4j
-public class SQSAuctionService extends AuctionService {
+public class AuctionMessagePublisherService extends AuctionService {
 
     @Autowired
-    NotificationBrokerSender notificationBrokerSender;
+    MessagePublisher messagePublisher;
 
     protected MessageRequest getMessageRequest(Auction auction, Item item, boolean isImmediatePurchase, int bidCount) {
         MessageRequest messageRequest = MessageRequest.builder()
@@ -42,7 +42,7 @@ public class SQSAuctionService extends AuctionService {
     protected void finishAuction(Auction auction, Item item, boolean isImmediatePurchase, int bidCount) {
         super.finishAuction(auction, item, isImmediatePurchase, bidCount);
 
-        notificationBrokerSender.makeNotification(getMessageRequest(auction, item, isImmediatePurchase, bidCount));
+        messagePublisher.publishMessage(getMessageRequest(auction, item, isImmediatePurchase, bidCount));
     }
 
 }
