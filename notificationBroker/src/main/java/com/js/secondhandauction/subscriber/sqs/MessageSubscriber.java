@@ -55,7 +55,7 @@ public class MessageSubscriber {
 
 
     @SqsListener(queueNames = "sha-message-queue")
-    public void consumeMessageAndPublishNotificationInfo(MessageRequest messageRequest) throws JsonProcessingException {
+    public void consumeMessageAndPublishNotification(MessageRequest messageRequest) throws JsonProcessingException {
         log.info("Listening to SQS InBox: " + messageRequest);
 
         List<AuctionParticipantsResponse> participants = auctionService.getAuctionParticipants(messageRequest.getAuction().getItemNo());
