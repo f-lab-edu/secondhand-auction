@@ -16,15 +16,20 @@ public class NotificationController {
     private ReactiveWebSocketHandler webSocketHandler;
 
     //Test Send a message to a specific user
-    @PostMapping("/message/{userno}")
-    public ResponseEntity<String> postMessage(@PathVariable String userno, @RequestBody String message) {
-        Sinks.Many<String> sink = webSocketHandler.getSink(userno);
+    @PostMapping("/message/{userNo}")
+    public ResponseEntity<String> postMessage(@PathVariable String userNo, @RequestBody String message) {
+        Sinks.Many<String> sink = webSocketHandler.getSink(userNo);
         if (sink != null) {
             sink.emitNext(message, Sinks.EmitFailureHandler.FAIL_FAST);
             return ResponseEntity.ok("Message Sent!");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found!");
         }
+    }
+
+    @GetMapping("/health-check")
+    public ResponseEntity<Void> healthCheck() {
+        return ResponseEntity.ok(null);
     }
 
 }
