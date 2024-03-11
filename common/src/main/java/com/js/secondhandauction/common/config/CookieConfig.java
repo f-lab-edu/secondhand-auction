@@ -7,22 +7,23 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.HttpSessionIdResolver;
 
-@Configuration
+//@Configuration
 public class CookieConfig {
-    @Bean
-    public CookieSerializer cookieSerializer() {
-        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        //TODO : aws 도메인 네임으로 변경
-        serializer.setDomainName("localhost");
-        serializer.setUseSecureCookie(false);
-        serializer.setUseHttpOnlyCookie(false);
-        return serializer;
-    }
-
-    @Bean
-    public HttpSessionIdResolver httpSessionIdResolver() {
-        CookieHttpSessionIdResolver resolver = new CookieHttpSessionIdResolver();
-        resolver.setCookieSerializer(cookieSerializer());
-        return resolver;
-    }
+    //aws 로그인 세션을 공유하지 않아, 해당 소스 주석처리
+//    @Bean
+//    public CookieSerializer cookieSerializer() {
+//        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+//        //TODO : aws 도메인 네임으로 변경
+//        serializer.setDomainName("localhost");
+//        serializer.setUseSecureCookie(false);
+//        serializer.setUseHttpOnlyCookie(false);
+//        return serializer;
+//    }
+//
+//    @Bean
+//    public HttpSessionIdResolver httpSessionIdResolver() {
+//        CookieHttpSessionIdResolver resolver = new CookieHttpSessionIdResolver();
+//        resolver.setCookieSerializer(cookieSerializer());
+//        return resolver;
+//    }
 }
