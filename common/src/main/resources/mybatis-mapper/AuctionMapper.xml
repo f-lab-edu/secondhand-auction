@@ -55,7 +55,7 @@
 
     <select id="findParticipantsByItemNo">
         <![CDATA[
-        select distinct reg_id
+        select distinct reg_id user_no
         from Auction
         where item_no = #{itemNo}
         ]]>

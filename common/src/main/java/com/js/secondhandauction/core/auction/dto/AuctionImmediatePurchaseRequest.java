@@ -13,4 +13,8 @@ public record AuctionImmediatePurchaseRequest(
                 .build();
     }
 
+    public AuctionRequest toAuctionRequest() {
+        return new AuctionRequest(itemNo, 0);
+    }
+
 }

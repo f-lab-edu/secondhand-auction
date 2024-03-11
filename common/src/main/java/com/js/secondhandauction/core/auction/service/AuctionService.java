@@ -1,7 +1,6 @@
 package com.js.secondhandauction.core.auction.service;
 
 import com.js.secondhandauction.common.exception.ErrorCode;
-import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.auction.domain.Auction;
 import com.js.secondhandauction.core.auction.dto.*;
 import com.js.secondhandauction.core.auction.exception.AuctionException;
@@ -26,30 +25,45 @@ public class AuctionService {
     AuctionRepository auctionRepository;
 
     @Autowired
-    ItemService itemService;
+    private ItemService itemService;
 
     @Autowired
-    MemberService memberService;
+    private MemberService memberService;
 
-    @Autowired
-    AuctionFinalizeFailureService auctionFinalizeFailureService;
-
-    final int MIN_BETTING_PERCENT = 5;
-    final int USER_MAX_BETTING_TIMES = 5;
+    private final int MIN_BETTING_PERCENT = 5;
+    private final int USER_MAX_BETTING_TIMES = 5;
 
     /**
-     * 경매 등록
+     * 경매 조회
+     */
+    public List<Auction> getAuctions(long itemNo) {
+        return auctionRepository.findByItemNo(itemNo);
+    }
+
+    /**
+     * 경매 참가자 조회
+     */
+    public List<AuctionParticipantsResponse> getAuctionParticipants(long itemNo) {
+        return auctionRepository.findParticipantsByItemNo(itemNo);
+    }
+
+    /**
+     * 경매 참여
      */
     @Transactional
-    public AuctionResponse createAuction(CustomUserDetails customUserDetails, AuctionRequest auctionRequest) {
-        Auction auction = auctionRequest.toEntity(customUserDetails);
-
+    public AuctionResponse createAuction(Auction auction, boolean isImmediatePurchase) {
         Item item = itemService.getItem(auction.getItemNo());
 
         AuctionLastBidResponse lastBid = auctionRepository.getLastBid(auction.getItemNo());
 
+        int bidCount = auctionRepository.getTotalBidCount(item.getItemNo());
+
+        if (isImmediatePurchase) {
+            auction.setBid(item.getImmediatePrice());
+        }
+
         //경매 체크
-        validateRequest(item, auction, lastBid);
+        validateRequest(item, auction);
 
         if (item.getIsBid()) {
             validateForBidItem(item, auction, lastBid);
@@ -61,53 +75,15 @@ public class AuctionService {
 
         auctionRepository.create(auction);
 
-        //if (isFinalBid(item)) {
-        finishAuction(auction, item);
-        //}
+        finishAuction(auction, item, isImmediatePurchase, bidCount);
 
         return AuctionResponse.of(auction);
-    }
-
-    /**
-     * 즉시 구매
-     */
-    @Transactional
-    public AuctionResponse createImmediateAuction(CustomUserDetails customUserDetails, AuctionImmediatePurchaseRequest auctionImmediatePurchaseRequest) {
-        Auction auction = auctionImmediatePurchaseRequest.toEntity(customUserDetails);
-
-        Item item = itemService.getItem(auction.getItemNo());
-
-        auction.setBid(item.getImmediatePrice());
-
-        AuctionLastBidResponse lastBid = auctionRepository.getLastBid(auction.getItemNo());
-
-        //경매 체크
-        validateRequest(item, auction, lastBid);
-
-        if (item.getIsBid()) {
-            updateBidItem(auction, lastBid);
-        } else {
-            updateFirstItem(auction);
-        }
-
-        auctionRepository.create(auction);
-
-        finishAuction(auction, item);
-
-        return AuctionResponse.of(auction);
-    }
-
-    /**
-     * 경매 조회
-     */
-    public List<Auction> getAuctions(long itemNo) {
-        return auctionRepository.findByItemNo(itemNo);
     }
 
     /**
      * 경매 공통 체크
      */
-    protected void validateRequest(Item item, Auction auction, AuctionLastBidResponse lastBid) {
+    protected void validateRequest(Item item, Auction auction) {
         if (!State.ONSALE.equals(item.getState())) {
             throw new ItemException(ErrorCode.CAN_BID_ONLY_ONSALE);
         }
@@ -121,8 +97,16 @@ public class AuctionService {
         }
 
         if (itemService.isItemExpired(item)) {
-            auctionFinalizeFailureService.finishExpiredAuction(item, lastBid);
             throw new ItemException(ErrorCode.CANNOT_BID_EXPIRED);
+        }
+    }
+
+    /**
+     * 경매 입찰전 아이템 체크
+     */
+    protected void validateFirstItem(Item item, Auction auction) {
+        if (auction.getBid() < item.getRegPrice()) {
+            throw new AuctionException(ErrorCode.NOT_OVER_MINBID);
         }
     }
 
@@ -147,23 +131,6 @@ public class AuctionService {
     }
 
     /**
-     * 경매 입찰된 아이템 업데이트
-     */
-    protected void updateBidItem(Auction auction, AuctionLastBidResponse lastBid) {
-        memberService.updateMemberTotalBalanceByUserNo(auction.getRegId(), auction.getBid() * -1);
-        memberService.updateMemberTotalBalanceByUserNo(lastBid.getRegId(), lastBid.getBid());
-    }
-
-    /**
-     * 경매 입찰전 아이템 체크
-     */
-    protected void validateFirstItem(Item item, Auction auction) {
-        if (auction.getBid() < item.getRegPrice()) {
-            throw new AuctionException(ErrorCode.NOT_OVER_MINBID);
-        }
-    }
-
-    /**
      * 경매 입찰전 아이템 업데이트
      */
     protected void updateFirstItem(Auction auction) {
@@ -172,31 +139,32 @@ public class AuctionService {
     }
 
     /**
+     * 경매 입찰된 아이템 업데이트
+     */
+    protected void updateBidItem(Auction auction, AuctionLastBidResponse lastBid) {
+        memberService.updateMemberTotalBalanceByUserNo(auction.getRegId(), auction.getBid() * -1);
+        memberService.updateMemberTotalBalanceByUserNo(lastBid.getRegId(), lastBid.getBid());
+    }
+
+    /**
      * 경매 종료 체크
      */
-    protected boolean isFinalBid(Item item) {
-        return item.getBetTime() - 1 <= auctionRepository.getTotalBidCount(item.getItemNo());
+    protected boolean isFinalBid(Item item, boolean isImmediatePurchase, int bidCount) {
+        return isImmediatePurchase || item.getBetTime() - 1 <= bidCount;
     }
 
 
     /**
      * 경매 종료
      */
-    protected void finishAuction(Auction auction, Item item) {
-        if (isFinalBid(item)) {
+    protected void finishAuction(Auction auction, Item item, boolean isImmediatePurchase, int bidCount) {
+        if (isFinalBid(item, isImmediatePurchase, bidCount)) {
             memberService.updateMemberTotalBalanceByUserNo(item.getRegId(), auction.getBid());
 
             itemService.updateItemState(item.getItemNo(), State.SOLDOUT);
 
             log.debug("정상 " + item.getItem() + "(" + item.getItemNo() + ") 판매완료");
         }
-    }
-
-    /**
-     * 경매 참가자 조회
-     */
-    public List<AuctionParticipantsResponse> getAuctionParticipants(long itemNo) {
-        return auctionRepository.findParticipantsByItemNo(itemNo);
     }
 
 }

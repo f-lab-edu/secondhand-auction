@@ -3,6 +3,10 @@ package com.js.secondhandauction.core.auth.controller;
 import com.js.secondhandauction.common.response.ApiResponse;
 import com.js.secondhandauction.core.auth.dto.LoginRequest;
 import com.js.secondhandauction.core.auth.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "인증관리", description = "로그인/로그아웃 API")
 @RestController
 public class AuthController {
     @Autowired
@@ -24,6 +29,11 @@ public class AuthController {
      * 로그인
      */
     @PostMapping("/public/login")
+    @Operation(summary = "로그인", description = "로그인을 합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "로그인 실패", content = @Content),
+    })
     public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         Authentication auth = authServicee.login(loginRequest.getUserId(), loginRequest.getPassword());
 
@@ -40,6 +50,10 @@ public class AuthController {
      * 로그아웃
      */
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "로그아웃을 합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+    })
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         // 세션에서 인증 정보 제거
         SecurityContextHolder.clearContext();

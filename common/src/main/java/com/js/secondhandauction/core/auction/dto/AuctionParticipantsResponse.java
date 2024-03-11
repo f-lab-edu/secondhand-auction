@@ -7,5 +7,5 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuctionParticipantsResponse {
-    private long regId;
+    private long userNo;
 }

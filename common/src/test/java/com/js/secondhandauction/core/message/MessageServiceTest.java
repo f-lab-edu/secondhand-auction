@@ -15,7 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTest {
@@ -34,7 +35,7 @@ public class MessageServiceTest {
 
         for (long i = 1L; i < 20L; i++) {
             AuctionParticipantsResponse participant = AuctionParticipantsResponse.builder()
-                    .regId(i)
+                    .userNo(i)
                     .build();
             participantList.add(participant);
         }

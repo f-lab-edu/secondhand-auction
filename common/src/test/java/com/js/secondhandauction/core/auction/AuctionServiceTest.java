@@ -2,12 +2,11 @@ package com.js.secondhandauction.core.auction;
 
 import com.js.secondhandauction.common.exception.ErrorCode;
 import com.js.secondhandauction.common.security.service.CustomUserDetails;
+import com.js.secondhandauction.core.auction.dto.AuctionLastBidResponse;
 import com.js.secondhandauction.core.auction.dto.AuctionRequest;
 import com.js.secondhandauction.core.auction.dto.AuctionResponse;
-import com.js.secondhandauction.core.auction.dto.AuctionLastBidResponse;
 import com.js.secondhandauction.core.auction.exception.AuctionException;
 import com.js.secondhandauction.core.auction.repository.AuctionRepository;
-import com.js.secondhandauction.core.auction.service.AuctionFinalizeFailureService;
 import com.js.secondhandauction.core.auction.service.AuctionService;
 import com.js.secondhandauction.core.item.domain.Item;
 import com.js.secondhandauction.core.item.domain.State;
@@ -41,8 +40,6 @@ public class AuctionServiceTest {
     private ItemService itemService;
     @Mock
     private MemberService memberService;
-    @Mock
-    private AuctionFinalizeFailureService auctionFinalizeFailureService;
 
 
     private final long USER_NO = 1L;
@@ -119,7 +116,7 @@ public class AuctionServiceTest {
         //정상 입찰
         Mockito.when(auctionRepository.getTotalBidCount(NO_BID_ITEM_NO)).thenReturn(0);
 
-        AuctionResponse createdAuction = auctionService.createAuction(USERDETAILS_USER_NO, auctionRequest);
+        AuctionResponse createdAuction = auctionService.createAuction(auctionRequest.toEntity(USERDETAILS_USER_NO), false);
         assertNotNull(createdAuction);
         assertThat(createdAuction.getBid()).isEqualTo(500000);
 
@@ -129,14 +126,14 @@ public class AuctionServiceTest {
         Mockito.when(itemService.isItemExpired(EXPIRED_ITEM)).thenReturn(true);
 
         Assertions.assertThrows(ItemException.class,
-                () -> auctionService.createAuction(USERDETAILS_USER_NO, expiredAuctionRequest), ErrorCode.CANNOT_BID_EXPIRED.getMessage());
+                () -> auctionService.createAuction(expiredAuctionRequest.toEntity(USERDETAILS_USER_NO), false), ErrorCode.CANNOT_BID_EXPIRED.getMessage());
 
 
         //아이템 등록자 입찰로 입찰실패
         AuctionRequest regAuctionRequest = new AuctionRequest(NO_BID_ITEM_NO, 500000);
 
         Assertions.assertThrows(AuctionException.class,
-                () -> auctionService.createAuction(USERDETAILS_REG_USER_NO, regAuctionRequest), ErrorCode.CANNOT_BID_MYSELF.getMessage());
+                () -> auctionService.createAuction(regAuctionRequest.toEntity(USERDETAILS_REG_USER_NO), false), ErrorCode.CANNOT_BID_MYSELF.getMessage());
 
         //입찰 횟수 초과로 입찰 실패
         AuctionRequest endAuctionRequest = new AuctionRequest(END_BID_ITEM_NO, 500000);
@@ -144,13 +141,13 @@ public class AuctionServiceTest {
         Mockito.when(auctionRepository.getLastBid(END_BID_ITEM_NO)).thenReturn(END_BID_ITEM_RESPONSE);
 
         Assertions.assertThrows(AuctionException.class,
-                () -> auctionService.createAuction(USERDETAILS_USER_NO, endAuctionRequest), ErrorCode.CANNOT_BETTING_OVER_MAXTIMES.getMessage());
+                () -> auctionService.createAuction(endAuctionRequest.toEntity(USERDETAILS_USER_NO), false), ErrorCode.CANNOT_BETTING_OVER_MAXTIMES.getMessage());
 
         //판매 된 물건 입찰 실패
         AuctionRequest soldAuctionRequest = new AuctionRequest(SOLDOUT_ITEM_NO, 500000);
 
         Assertions.assertThrows(ItemException.class,
-                () -> auctionService.createAuction(USERDETAILS_USER_NO, soldAuctionRequest), ErrorCode.CAN_BID_ONLY_ONSALE.getMessage());
+                () -> auctionService.createAuction(soldAuctionRequest.toEntity(USERDETAILS_USER_NO), false), ErrorCode.CAN_BID_ONLY_ONSALE.getMessage());
 
         //중복 입찰 실패
         Mockito.when(auctionRepository.getLastBid(BID_ITEM_NO)).thenReturn(BID_ITEM_RESPONSE);
@@ -158,13 +155,13 @@ public class AuctionServiceTest {
         AuctionRequest dupAuctionRequest = new AuctionRequest(BID_ITEM_NO, 500000);
 
         Assertions.assertThrows(AuctionException.class,
-                () -> auctionService.createAuction(USERDETAILS_USER_NO, dupAuctionRequest), ErrorCode.DUPLICATE_MEMBER_TICK.getMessage());
+                () -> auctionService.createAuction(dupAuctionRequest.toEntity(USERDETAILS_USER_NO), false), ErrorCode.DUPLICATE_MEMBER_TICK.getMessage());
 
         //최소 베팅 금액
         AuctionRequest newAuctionRequest = new AuctionRequest(BID_ITEM_NO, 360000);
 
         Assertions.assertThrows(AuctionException.class,
-                () -> auctionService.createAuction(USERDETAILS_USER_NO2, newAuctionRequest), ErrorCode.NOT_OVER_MINBID.getMessage());
+                () -> auctionService.createAuction(newAuctionRequest.toEntity(USERDETAILS_USER_NO2), false), ErrorCode.NOT_OVER_MINBID.getMessage());
 
     }
 
