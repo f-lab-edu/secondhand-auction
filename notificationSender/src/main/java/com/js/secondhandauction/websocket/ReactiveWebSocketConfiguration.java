@@ -12,7 +12,7 @@ import java.util.Map;
 public class ReactiveWebSocketConfiguration {
     @Bean
     public SimpleUrlHandlerMapping handlerMapping(WebSocketHandler wsh) {
-        return new SimpleUrlHandlerMapping(Map.of("/notice-emitter", wsh), 1);
+        return new SimpleUrlHandlerMapping(Map.of("/sender/notice-emitter", wsh), 1);
     }
 
     @Bean

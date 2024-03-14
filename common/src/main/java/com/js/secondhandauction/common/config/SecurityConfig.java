@@ -61,8 +61,7 @@ public class SecurityConfig {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
-            //TODO : aws 적용시 허옹 가능 패턴 변경
-            config.setAllowedOriginPatterns(Arrays.asList("http://localhost", "http://localhost:8081"));
+            config.setAllowedOriginPatterns(Arrays.asList("http://localhost", "http://alb-test-345516207.ap-northeast-2.elb.amazonaws.com"));
             config.setAllowCredentials(true);
             return config;
         };
