@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-public class AuctionRedissonLockService {
+public class AuctionRedissonService {
     @Autowired
     private RedissonClient redissonClient;
 

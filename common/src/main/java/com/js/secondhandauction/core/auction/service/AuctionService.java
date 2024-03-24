@@ -62,6 +62,15 @@ public class AuctionService {
             auction.setBid(item.getImmediatePrice());
         }
 
+        //최소 베팅 요청을 처리하기 위해서
+        if (auction.getBid() == 0) {
+            if (item.getIsBid()) {
+                auction.setBid(lastBid.getBid() + (item.getRegPrice() * MIN_BETTING_PERCENT / 100));
+            } else {
+                auction.setBid(item.getRegPrice());
+            }
+        }
+
         //경매 체크
         validateRequest(item, auction);
 
