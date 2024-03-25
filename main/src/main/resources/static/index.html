@@ -11,29 +11,34 @@
     </div>
 </div>
 <script>
-    const chatWebSocket = new WebSocket('ws://' + location.host + ':8081/notice-emitter');
+    const notiWebSocket = new WebSocket('ws://' + location.host + '/sender/notice-emitter');
     const messageList = document.getElementById('message-list');
 
-    chatWebSocket.onmessage = function (event) {
+    notiWebSocket.onmessage = function (event) {
         const li = document.createElement('li');
         li.innerText = event.data;
         messageList.appendChild(li);
     };
 
-    chatWebSocket.onopen = function () {
+    notiWebSocket.onopen = function () {
         console.log('웹소켓이 열렸습니다!');
     }
 
-    chatWebSocket.onclose = function () {
+    notiWebSocket.onclose = function () {
         console.log('웹소켓이 닫혔습니다! 다시 연결하려면 페이지를 새로고침 해주세요.');
     };
 
-    function sendMessage() {
-        chatWebSocket.send(userno);
+    notiWebSocket.onerror = function (event) {
+        console.log('웹소켓 에러 발생:', event);
+    };
+
+    function sendMessage(userno) {
+        //console.log('웹소켓으로 메시지를 보냅니다.' + userno);
+        notiWebSocket.send(userno);
     }
 
     window.onload = function () {
-        fetch('http://localhost/members/my')
+        fetch('http://' + location.host + '/members/my')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -41,8 +46,7 @@
                 return response.json();
             })
             .then(data => {
-                userno = data.data.userNo;
-                sendMessage();
+                sendMessage(data.data.userNo);
             })
             .catch(error => {
                 console.error('There has been a problem with your fetch operation:', error);

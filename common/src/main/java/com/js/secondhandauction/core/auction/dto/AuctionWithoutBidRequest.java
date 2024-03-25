@@ -3,7 +3,7 @@ package com.js.secondhandauction.core.auction.dto;
 import com.js.secondhandauction.common.security.service.CustomUserDetails;
 import com.js.secondhandauction.core.auction.domain.Auction;
 
-public record AuctionImmediatePurchaseRequest(
+public record AuctionWithoutBidRequest(
         long itemNo
 ) {
     public Auction toEntity(CustomUserDetails customUserDetails) {

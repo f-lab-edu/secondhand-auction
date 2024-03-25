@@ -54,6 +54,7 @@ public class ItemService {
     /**
      * 상품수정
      */
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public ItemResponse updateItem(long itemNo, CustomUserDetails customUserDetails, ItemRequest itemRequest) {
         Item getItem = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
 
@@ -75,7 +76,7 @@ public class ItemService {
 
         itemRepository.update(item);
 
-        return ItemResponse.of(evictCache(item));
+        return ItemResponse.of(item);
     }
 
     /**
@@ -110,6 +111,7 @@ public class ItemService {
     /**
      * 상품삭제
      */
+    @CacheEvict(key = "#itemNo", value = "ITEM_ITEMNO")
     public void deleteItem(long itemNo, CustomUserDetails customUserDetails) {
         Item item = itemRepository.findByItemNo(itemNo).orElseThrow(NotFoundItemException::new);
 
@@ -144,10 +146,5 @@ public class ItemService {
 
     public boolean isItemExpired(Item item) {
         return item.getRegDate().plusHours(24L * addDay).isBefore(LocalDateTime.now());
-    }
-
-    @CacheEvict(key = "#item.itemNo", value = "ITEM_ITEMNO")
-    public Item evictCache(Item item) {
-        return item;
     }
 }

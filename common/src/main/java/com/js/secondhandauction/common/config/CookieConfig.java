@@ -13,7 +13,6 @@ public class CookieConfig {
 //    @Bean
 //    public CookieSerializer cookieSerializer() {
 //        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-//        //TODO : aws 도메인 네임으로 변경
 //        serializer.setDomainName("localhost");
 //        serializer.setUseSecureCookie(false);
 //        serializer.setUseHttpOnlyCookie(false);
