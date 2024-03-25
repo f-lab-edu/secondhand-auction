@@ -53,7 +53,9 @@ public class NotificationSubscriber {
             for (JsonNode jsonNode : participantsNode) {
                 String userNo = jsonNode.path("userNo").asText();
                 log.info("userNo: " + userNo);
-                webSocketHandler.getSink(userNo).emitNext(messageText, Sinks.EmitFailureHandler.FAIL_FAST);
+                if (webSocketHandler.getSink(userNo) != null) {
+                    webSocketHandler.getSink(userNo).emitNext(messageText, Sinks.EmitFailureHandler.FAIL_FAST);
+                }
             }
         } catch (JsonProcessingException e) {
             log.error(String.valueOf(e));
